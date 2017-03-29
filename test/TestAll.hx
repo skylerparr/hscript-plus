@@ -2,9 +2,7 @@ import utest.Runner;
 import utest.ui.Report;
 
 import cases.ScriptClassUtilTest;
-import cases.ScriptCompilerTest;
 import cases.ScriptStateTest;
-import cases.ScopeManagerTest;
 import cases.ParserTest;
 import cases.InterpTest;
 
@@ -21,8 +19,6 @@ class TestAll  {
 	static function addTests(runner:Runner) {
 		runner.addCase(new ScriptClassUtilTest());
 		runner.addCase(new ScriptStateTest());
-		runner.addCase(new ScriptCompilerTest());
-		runner.addCase(new ScopeManagerTest());
 		runner.addCase(new ParserTest());
 		runner.addCase(new InterpTest());
 	}
