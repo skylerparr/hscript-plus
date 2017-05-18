@@ -1,3 +1,5 @@
+package;
+
 import utest.Runner;
 import utest.ui.Report;
 
@@ -24,5 +26,4 @@ class TestAll  {
 		runner.addCase(new InterpTest());
 		runner.addCase(new RealClassStructureTest());
 	}
-	
 }

@@ -1,8 +1,0 @@
--neko test/bin/test.n
--cp test
--cp hscript
--lib utest
--lib hscript
--main TestAll
-
--cmd neko test/bin/test.n

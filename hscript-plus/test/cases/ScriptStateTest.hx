@@ -73,10 +73,4 @@ class ScriptStateTest {
         ";
         state.executeString(script);
     }
-
-    public function parserErrorHandling() {
-        var script = "class {}";
-        state.executeString(script);
-        Assert.pass();
-    }
 }   

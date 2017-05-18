@@ -5,7 +5,7 @@
     // they should only contain arguments and/or hxml files that are needed for completion,
     // such as -cp, -lib, target output settings and defines.
     "haxe.displayConfigurations": [
-        ["run.hxml"] // if a hxml file is safe to use, we can just pass it as argument
+        ["run-plus.hxml"] // if a hxml file is safe to use, we can just pass it as argument
         // you can add more than one configuration and switch between them
     ]
 }
