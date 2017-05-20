@@ -2,8 +2,10 @@ package hscript.plus;
 
 import hscript.Expr;
 
-class Interp extends hscript.Interp {
+class InterpPlus extends Interp {
 	public var packageName(default, null):String;
+
+	var _skipExprMapping:Bool = false;
 
 	public function new() {
 		super();
@@ -15,8 +17,13 @@ class Interp extends hscript.Interp {
 	}
 
 	override public function expr(e:Expr):Dynamic {
-		e = Tools.map(e, accessThis);
-		e = Tools.map(e, accessSuper);
+		if (_skipExprMapping) {
+			_skipExprMapping = false;
+		}
+		else {
+			e = Tools.map(e, accessThis);
+			e = Tools.map(e, accessSuper);
+		}
 
 		var ret = super.expr(e);
 		if (ret != null) return ret;
@@ -49,12 +56,12 @@ class Interp extends hscript.Interp {
 
 	// TODO: import anonymous structure class
 	function importClass(path:String) {
-		var className = path.split(".").pop();
 		var cls = Type.resolveClass(path);
 
 		if (cls == null)
 			throw '$path not found';
 		
+		var className = path.split(".").pop();
 		variables.set(className, cls);
 	}
 
@@ -128,12 +135,18 @@ class Interp extends hscript.Interp {
 
 	function accessSuper(e:Expr):Expr {
 		switch (edef(e)) {
+			case EIdent(name):
+				var object = super.expr(e);
+				if (ClassUtil.superIsClass(object)) {
+					_skipExprMapping = true;
+					return mk(EField(e, "__super"));
+				}
 			case EField(ident, fieldName):
 				switch (ident) {
 					case EIdent(objectName):
 						var object = expr(ident);
-						if (superHasField(object, fieldName))
-							return mk(EField(EField(EIdent(objectName), "__super"), fieldName), e);
+						if (ClassUtil.superHasField(object, fieldName))
+							return mk(EField(EField(ident, "__super"), fieldName), e);
 					default:
 				}
 			default:
@@ -148,11 +161,5 @@ class Interp extends hscript.Interp {
 		#else
 		return e;
 		#end
-	}
-
-	function superHasField(object:Dynamic, fieldName:String) {
-		return object != null 
-		&& ClassUtil.isStructure(object) 
-		&& object.__super != null && Reflect.hasField(object.__super, fieldName);
 	}
 }

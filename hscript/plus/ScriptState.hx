@@ -3,8 +3,6 @@ package hscript.plus;
 import haxe.CallStack;
 
 import hscript.Expr;
-import hscript.plus.Parser;
-import hscript.plus.Interp;
 
 class ScriptState {
 	public var variables(get, null):Map<String, Dynamic>; function get_variables() return _interp.variables;
@@ -12,17 +10,17 @@ class ScriptState {
 
 	public var rethrowError:Bool = #if debug true #else false #end;
 
-	public var ast:Expr;
-	public var path:String;
+	public var ast(default, null):Expr;
+	public var path(default, null):String;
 
-	var _parser:Parser;
-	var _interp:Interp;
+	var _parser:ParserPlus;
+	var _interp:InterpPlus;
 
 	public function new() {
-		_parser = new Parser();
+		_parser = new ParserPlus();
 		_parser.allowTypes = true;
 		
-		_interp = new Interp();
+		_interp = new InterpPlus();
 	}
 	
 	public inline function get(name:String):Dynamic {

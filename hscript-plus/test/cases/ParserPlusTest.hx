@@ -2,16 +2,16 @@ package cases;
 
 import utest.Assert;
 import hscript.Expr;
-import hscript.plus.Parser;
+import hscript.plus.ParserPlus;
 
-@:access(hscript.plus.Parser.expr)
-class ParserTest {
-	var parser:Parser;
+@:access(hscript.plus.ParserPlus.expr)
+class ParserPlusTest {
+	var parser:ParserPlus;
 
 	public function new() {}
 
 	public function setup() {
-		parser = new Parser();
+		parser = new ParserPlus();
 	}
 
 	inline function getAst(script:String) {

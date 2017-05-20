@@ -2,18 +2,18 @@ package cases;
 
 import hscript.plus.ClassUtil;
 import utest.Assert;
-import hscript.plus.Interp;
-import hscript.plus.Parser;
+import hscript.plus.InterpPlus;
+import hscript.plus.ParserPlus;
 
-class InterpTest {
-	var parser:Parser;
-	var interp:Interp;
+class InterpPlusTest {
+	var parser:ParserPlus;
+	var interp:InterpPlus;
 
 	public function new() {}
 
 	public function setup() {
-		interp = new Interp();
-		parser = new Parser();
+		interp = new InterpPlus();
+		parser = new ParserPlus();
 	}
 
 	inline function get(name:String) {

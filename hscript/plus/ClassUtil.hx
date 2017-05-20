@@ -41,12 +41,29 @@ class ClassUtil {
 		return _this;
 	}
 
-	public static inline function isStructure(object:Dynamic) {
+	public static inline function superHasField(object:Dynamic, fieldName:String) {
+		return isStructure(object) && hasField(object.__super, fieldName);
+	}
+
+	static inline function hasField(object:Dynamic, fieldName:String) {
+		return object != null && Reflect.hasField(object, fieldName);
+	}
+
+	public static inline function superIsClass(object:Dynamic) {
+		return isStructure(object) && isClass(object.__super);
+	}
+
+	static inline function isStructure(object:Dynamic) {
 		return object != null && Reflect.hasField(object, "__super");
 	}
 
 	static inline function isClass(object:Dynamic) {
-		return object != null && Reflect.hasField(object, "__name__");
+		try {
+			return Type.getClassName(object) != null;
+		}
+		catch (e:Dynamic) {
+			return false;
+		}
 	}
 	
 	public static function createClass(?className:String, ?baseClass:Dynamic, ?body:Dynamic):Dynamic {

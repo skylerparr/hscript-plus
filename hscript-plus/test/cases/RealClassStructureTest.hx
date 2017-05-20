@@ -1,13 +1,13 @@
 package cases;
 
 import hscript.plus.ClassUtil;
-import hscript.plus.Interp;
-import hscript.plus.Parser;
+import hscript.plus.InterpPlus;
+import hscript.plus.ParserPlus;
 import utest.Assert;
 
 class RealClassStructureTest {
-	var parser:Parser;
-	var interp:Interp;
+	var parser:ParserPlus;
+	var interp:InterpPlus;
 	
 	var Player:Dynamic;
 	var player:Dynamic;
@@ -35,8 +35,8 @@ class RealClassStructureTest {
 	}
 
 	public function setup() {
-		interp = new Interp();
-		parser = new Parser();
+		interp = new InterpPlus();
+		parser = new ParserPlus();
 		player = ClassUtil.create(Player);
 		set("player", player);
 		set("Player", Player);

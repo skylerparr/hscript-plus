@@ -41,7 +41,7 @@ class Tools {
 	public static function map( e : Expr, f : Expr -> Expr ) {
 		return switch( e ) {
 		case EClass(name, e, baseClass): EClass(name, f(e), baseClass);
-    	case EPackage(_), EImport(_), EConst(_), EIdent(_): e;
+    	case EPackage(_), EImport(_), EConst(_), EIdent(_): f(e);
 		case EVar(n, t, e): EVar(n, t, if( e != null ) f(e) else null);
 		case EParent(e): EParent(f(e));
 		case EBlock(el): EBlock([for( e in el ) f(e)]);

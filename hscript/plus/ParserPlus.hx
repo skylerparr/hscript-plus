@@ -1,9 +1,9 @@
 package hscript.plus;
 
 import hscript.Expr;
-import hscript.Parser.Token;
+import hscript.Parser;
 
-class Parser extends hscript.Parser {
+class ParserPlus extends Parser {
 	var access:Array<Access> = [];
 
 	public function new() {
