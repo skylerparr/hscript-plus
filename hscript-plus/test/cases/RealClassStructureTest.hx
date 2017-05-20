@@ -12,6 +12,8 @@ class RealClassStructureTest {
 	var Player:Dynamic;
 	var player:Dynamic;
 
+	var ast:hscript.Expr;
+
 	public function new() {
 		Player = ClassUtil.createClass(Sprite);
 	}
@@ -25,7 +27,7 @@ class RealClassStructureTest {
 	}
 
 	inline function executeScript(script:String) {
-		return execute(getAst(script));
+		return execute(ast = getAst(script));
 	}
 
 	inline function set(name:String, value:Dynamic) {
@@ -37,6 +39,11 @@ class RealClassStructureTest {
 		parser = new Parser();
 		player = ClassUtil.create(Player);
 		set("player", player);
+		set("Player", Player);
+	}
+
+	public function testClassValue() {
+		Assert.equals(Player.__super, $type(executeScript("Player")));
 	}
 
 	public function testExpr() {
