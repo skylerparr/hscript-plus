@@ -10,6 +10,8 @@ class ScriptState {
 	public var variables(get, null):Map<String, Dynamic>; function get_variables() return _interp.variables;
 	public var getFileContent:String->String #if !flash = sys.io.File.getContent #end; 
 
+	public var rethrowError:Bool = #if debug true #else false #end;
+
 	public var ast:Expr;
 	public var path:String;
 
@@ -32,8 +34,11 @@ class ScriptState {
 	}
 
 	public function executeFile(path:String) {
-		if (getFileContent == null)
-			throw "Provide a getFileContent function first!";
+		if (getFileContent == null) {
+			error("Provide a getFileContent function first!");
+			if (!rethrowError)
+				return null;
+		}
 		this.path = path;
 		var script = getFileContent(path);
 		return execute(script);
@@ -57,7 +62,7 @@ class ScriptState {
 		}
 		catch (e:Dynamic) {
 			trace(ast);
-			trace(e + CallStack.toString(CallStack.exceptionStack()));
+			error(e + CallStack.toString(CallStack.exceptionStack()));
 		}
 		return null;
 	}
@@ -68,11 +73,17 @@ class ScriptState {
 		}
 		catch (e:Dynamic) {
 			#if hscriptPos 
-			trace('$path:${e.line}: characters ${e.pmin} - ${e.pmax}: $e'); 
+			error('$path:${e.line}: characters ${e.pmin} - ${e.pmax}: $e'); 
 			#else 
-			trace(e); 
+			error(e); 
 			#end 
 			return null;
 		}
+	}
+
+	function error(e:Dynamic) {
+		if (rethrowError)
+			throw e;
+		else trace(e);
 	}
 }
