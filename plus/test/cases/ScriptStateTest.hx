@@ -58,7 +58,7 @@ class ScriptStateTest {
     }
 
     public function testExecuteFile_Import() {
-        state.executeFile("hscript-plus/test/scripts/ExecuteFile_Import.hx");
+        state.executeFile("plus/test/scripts/ExecuteFile_Import.hx");
     }
 
     public function testMainFunctionAutoCalled() {
