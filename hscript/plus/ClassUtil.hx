@@ -25,13 +25,13 @@ class ClassUtil {
 				continue;
 			}
 
-			function method(?args:Array<Dynamic>) {
+			function method(?args:Array<Dynamic>):Dynamic {
 				try {
 					return Reflect.callMethod(_this, field, [_this].concat(args));
 				}
 				catch (e:Dynamic) {
 					trace('Called from $fieldName: $e');
-					return;
+					return null;
 				}
 			}
 
