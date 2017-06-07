@@ -20,6 +20,36 @@
             "args": ["plus/run-cpp.hxml"],
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-interp",
+            "args": ["plus/run-interp.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-js",
+            "args": ["plus/run-js.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-php",
+            "args": ["plus/run-php.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-python",
+            "args": ["plus/run-python.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-cs",
+            "args": ["plus/run-cs.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
         }
     ]
 }
