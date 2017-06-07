@@ -43,7 +43,7 @@ class RealClassStructureTest {
 	}
 
 	public function testClassValue() {
-		Assert.equals(Player.__super, $type(executeScript("Player")));
+		Assert.equals(Player.__super, executeScript("Player"));
 	}
 
 	public function testExpr() {
