@@ -3,10 +3,22 @@
     "command": "haxe",
     "tasks": [
         {
-            "taskName": "run standalone test",
+            "taskName": "run-neko",
             "args": ["plus/run-neko.hxml"],
             "suppressTaskName": true,
             "isBuildCommand": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-flash",
+            "args": ["plus/run-flash.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "run-cpp",
+            "args": ["plus/run-cpp.hxml"],
+            "suppressTaskName": true,
             "problemMatcher": "$haxe"
         }
     ]

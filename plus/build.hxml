@@ -1,0 +1,4 @@
+-cp hscript
+-cp plus/test
+-lib utest
+-main TestAll

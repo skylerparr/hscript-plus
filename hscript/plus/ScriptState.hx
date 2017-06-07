@@ -6,7 +6,7 @@ import hscript.Expr;
 
 class ScriptState {
 	public var variables(get, null):Map<String, Dynamic>; function get_variables() return _interp.variables;
-	public var getFileContent:String->String #if !flash = sys.io.File.getContent #end; 
+	public var getFileContent:String->String #if sys = sys.io.File.getContent #end; 
 
 	public var rethrowError:Bool = #if debug true #else false #end;
 

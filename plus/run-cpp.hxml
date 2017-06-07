@@ -1,0 +1,4 @@
+plus/build.hxml
+-cpp plus/bin/cpp
+
+-cmd start plus/bin/cpp/TestAll.exe

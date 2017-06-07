@@ -1,7 +1,4 @@
 -neko plus/bin/test.n
--cp hscript
--cp plus/test
--lib utest
--main TestAll
+plus/build.hxml
 
 -cmd neko plus/bin/test.n
