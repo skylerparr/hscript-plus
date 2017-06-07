@@ -73,4 +73,14 @@ class ScriptStateTest {
         ";
         state.executeString(script);
     }
+
+    public function testImportOtherScript() {
+        var script = "
+        import ImportOtherScript;
+
+        new ImportOtherScript();
+        ";
+        state.scriptDirectory = "plus/test/scripts/";
+        state.executeString(script);
+    }
 }   

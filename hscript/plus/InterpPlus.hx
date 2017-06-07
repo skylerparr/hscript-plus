@@ -54,12 +54,16 @@ class InterpPlus extends Interp {
 		return ret;
 	}
 
-	// TODO: import anonymous structure class
+	var resolveScript:String->Dynamic;
+
 	function importClass(path:String) {
 		var cls = Type.resolveClass(path);
 
 		if (cls == null)
-			throw '$path not found';
+			cls = resolveScript(path);
+			
+		if (cls == null)
+			throw 'importClass: $path not found';
 		
 		var className = path.split(".").pop();
 		variables.set(className, cls);
