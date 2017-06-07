@@ -1,4 +1,5 @@
--cp hscript
+-cp .
 -cp plus/test
 -lib utest
 -main TestAll
+-dce no

@@ -6,7 +6,6 @@
             "taskName": "run-neko",
             "args": ["plus/run-neko.hxml"],
             "suppressTaskName": true,
-            "isBuildCommand": true,
             "problemMatcher": "$haxe"
         },
         {
@@ -25,6 +24,7 @@
             "taskName": "run-interp",
             "args": ["plus/run-interp.hxml"],
             "suppressTaskName": true,
+            "isBuildCommand": true,
             "problemMatcher": "$haxe"
         },
         {
