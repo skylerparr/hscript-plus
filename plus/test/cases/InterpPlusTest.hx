@@ -185,4 +185,20 @@ class InterpPlusTest {
 		execute(getAst(script));
 		Assert.pass();
 	}
+
+	public function testFunctionReturnValue() {
+		var script = '
+		class FunctionReturnValue {
+			public function new() {}
+
+			public function getNum() {
+				return 10;
+			}
+		}
+
+		var test = new FunctionReturnValue();
+		test.getNum();
+		';
+		Assert.equals(10, execute(getAst(script)));
+	}
 }
