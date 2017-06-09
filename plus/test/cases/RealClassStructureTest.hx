@@ -4,7 +4,9 @@ import hscript.plus.ClassUtil;
 import hscript.plus.InterpPlus;
 import hscript.plus.ParserPlus;
 import utest.Assert;
+import hscript.Expr;
 
+@:access(hscript.plus.InterpPlus)
 class RealClassStructureTest {
 	var parser:ParserPlus;
 	var interp:InterpPlus;
@@ -26,8 +28,14 @@ class RealClassStructureTest {
 		return interp.execute(ast);
 	}
 
-	inline function executeScript(script:String) {
+	inline function executeScript(script:String, traceAST:Bool = false) {
 		return execute(ast = getAst(script));
+	}
+
+	inline function executeScriptTraceAST(script:String) {
+		ast = getAst(script);
+		trace(ast);
+		return execute(ast);
 	}
 
 	inline function set(name:String, value:Dynamic) {
@@ -47,7 +55,7 @@ class RealClassStructureTest {
 	}
 
 	public function testExpr() {
-		Assert.equals(100, executeScript("player.__super.health"));
+		Assert.equals(100, executeScript("player.health"));
 	}
 
 	public function testAssignment() {
@@ -74,6 +82,21 @@ class RealClassStructureTest {
 		execute(ast);
 
 		Assert.equals(150, player.__super.health);
+	}
+
+	public function testClassValueInFunctionCall() {
+		set("wrap", v -> v);
+		Assert.equals(Player.__super, executeScript("wrap(Player)"));
+	}
+
+	public function testAccessSuperIdent() {
+		var e = EIdent("player");
+		Assert.same(EField(e, "__super"), interp.accessSuper(e));
+	}
+
+	public function testAccessSuperField() {
+		var e = EField(EIdent("player"), "health");
+		Assert.same(EField(EField(EIdent("player"), "__super"), "health"), interp.accessSuper(e));
 	}
 }
 

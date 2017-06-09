@@ -5,28 +5,30 @@ import hscript.Expr;
 class InterpPlus extends Interp {
 	public var packageName(default, null):String;
 
-	var _skipExprMapping:Bool = false;
+	var _exprDepth:Int;
 
 	public function new() {
 		super();
 	}
 
 	override public function execute(e:Expr):Dynamic {
+		_exprDepth = -1;
 		packageName = "";
 		return super.execute(e);
 	}
 
 	override public function expr(e:Expr):Dynamic {
-		if (_skipExprMapping) {
-			_skipExprMapping = false;
-		}
-		else {
-			e = Tools.map(e, accessThis);
+		_exprDepth++;
+		e = Tools.map(e, accessThis);
+		if (_exprDepth == 0)
 			e = Tools.map(e, accessSuper);
-		}
 
-		var ret = super.expr(e);
-		if (ret != null) return ret;
+ 		var ret = super.expr(e);
+		
+		if (ret != null) {
+			_exprDepth--;
+			return ret;
+		}
 
 		switch (edef(e)) {
 			case EPackage(path):
@@ -51,13 +53,14 @@ class InterpPlus extends Interp {
 			default:
 		}
 
+		_exprDepth--;
 		return ret;
 	}
 
 	var resolveScript:String->Dynamic;
 
 	function importClass(path:String) {
-		var cls = Type.resolveClass(path);
+		var cls:Dynamic = Type.resolveClass(path);
 
 		if (cls == null)
 			cls = resolveScript(path);
@@ -139,20 +142,12 @@ class InterpPlus extends Interp {
 
 	function accessSuper(e:Expr):Expr {
 		switch (edef(e)) {
+			case EField(ident, fieldName):
+				return mk(EField(accessSuper(ident), fieldName), e);
 			case EIdent(name):
 				var object = super.expr(e);
-				if (ClassUtil.superIsClass(object)) {
-					_skipExprMapping = true;
-					return mk(EField(e, "__super"));
-				}
-			case EField(ident, fieldName):
-				switch (ident) {
-					case EIdent(objectName):
-						var object = expr(ident);
-						if (ClassUtil.superHasField(object, fieldName))
-							return mk(EField(EField(ident, "__super"), fieldName), e);
-					default:
-				}
+				if (ClassUtil.superIsClass(object))
+					return mk(EField(e, "__super"), e);
 			default:
 		}
 		return e;
