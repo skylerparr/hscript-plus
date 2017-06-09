@@ -23,8 +23,10 @@ class ScriptState {
 
 	public var scriptDirectory(default, set):String;
 	function set_scriptDirectory(newDirectory:String) {
-		loadScriptFromDirectory(newDirectory);
-		return scriptDirectory = newDirectory;
+		if (!newDirectory.endsWith("/"))
+			newDirectory += "/";
+		loadScriptFromDirectory(scriptDirectory = newDirectory);
+		return newDirectory;
 	}
 
 	/**
@@ -139,11 +141,11 @@ class ScriptState {
 		var paths:Array<String> = null;
 		// try to get script list
 		try {
-			paths = getScriptList(directory);
+			paths = getScriptList(null);
 		}
 		catch (e:Dynamic) {
 			try {
-				paths = getScriptList(null);
+				paths = getScriptList(directory);
 			}
 			catch (e:Dynamic) {
 				throw "`getScriptList`'s first parameter type should be String (path) or Void";
@@ -159,14 +161,13 @@ class ScriptState {
 				path
 			else directory + path;
 		});
-
-		// process the path to get package name
-		var getPackageName = (path:String) -> {
-			path = path.replace(directory, "");
-			path = path.replace(".hx", "");
-			return path.replace("/", ".");
-		}
-
+		
 		_scriptPathMap = [ for (path in paths) getPackageName(path) => path ];
+	}
+	
+	function getPackageName(path:String) {
+		path = path.replace(scriptDirectory, "");
+		path = path.replace(".hx", "");
+		return path.replace("/", ".");
 	}
 }
