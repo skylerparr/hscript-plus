@@ -59,7 +59,7 @@ class ClassUtil {
 
 	static inline function isClass(object:Dynamic) {
 		try {
-			return Type.getClassName(object) != null;
+			return Type.getClass(object) != null || Type.getClassName(object) != null;
 		}
 		catch (e:Dynamic) {
 			return false;

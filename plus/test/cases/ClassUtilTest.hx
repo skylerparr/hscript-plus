@@ -3,6 +3,7 @@ package cases;
 import utest.Assert;
 import hscript.plus.ClassUtil;
 
+@:access(hscript.plus.ClassUtil)
 class ClassUtilTest {
     public function new() {}
 
@@ -60,6 +61,16 @@ class ClassUtilTest {
         var Enemy:Dynamic = ClassUtil.createClass(Entity);
 
         Assert.isNull(Enemy.pop);
+    }
+
+    public function testSuperHasField() {
+        var obj = { __super: new TestSprite() };
+        Assert.isTrue(ClassUtil.superHasField(obj, "name"));
+    }
+
+    public function testSuperIsClass() {
+        var obj = { __super: new TestSprite() };
+        Assert.isTrue(ClassUtil.superIsClass(obj));
     }
 }
 
