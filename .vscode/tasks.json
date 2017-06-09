@@ -50,6 +50,12 @@
             "args": ["plus/run-cs.hxml"],
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "build-flash",
+            "args": ["plus/build-flash.hxml"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
         }
     ]
 }

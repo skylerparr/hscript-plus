@@ -1,0 +1,4 @@
+plus/build.hxml
+-swf plus/bin/test.swf
+-D fdb
+-debug
