@@ -1,10 +1,6 @@
 package hscript.plus;
 
 class ClassUtil {
-	public static var CLASS_NAME = Type.getClassName(ClassUtil).split(".")[1];
-	public static var create_FUNC_NAME = "create";
-	public static var classExtends_FUNC_NAME = "classExtends";
-
 	public static function create(baseClass:Dynamic, ?args:Array<Dynamic>):Dynamic {
 		if (args == null) args = [];
 
