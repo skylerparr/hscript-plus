@@ -1,19 +1,40 @@
 package cases;
 
+import hscript.Expr;
 import hscript.plus.ClassUtil;
-import utest.Assert;
 import hscript.plus.InterpPlus;
 import hscript.plus.ParserPlus;
+import utest.Assert;
 
 class InterpPlusTest {
 	var parser:ParserPlus;
 	var interp:InterpPlus;
+	var script(default, set):String;
+	var ast:Expr;
+	var returnedValue:Dynamic;
+	var traceOnce:Bool = false;
 
-	public function new() {}
+	function set_script(newScript:String) {
+		script = newScript;
+		parseToAst();
+		traceAstOnceIfRequest();
+		execute();
+		return newScript;
+	}
 
-	public function setup() {
-		interp = new InterpPlus();
-		parser = new ParserPlus();
+	function parseToAst() {
+		ast = parser.parseString(script);
+	}
+
+	function traceAstOnceIfRequest() {
+		if (traceOnce) {
+			trace(ast);
+			traceOnce = false;
+		}
+	}
+
+	inline function execute() {
+		return returnedValue = interp.execute(ast);
 	}
 
 	inline function get(name:String) {
@@ -24,82 +45,70 @@ class InterpPlusTest {
 		interp.variables.set(name, value);
 	}
 
-	inline function execute(ast) {
-		return interp.execute(ast);
-	}
+	public function new() {}
 
-	inline function getAst(script:String) {
-		return parser.parseString(script);
+	public function setup() {
+		interp = new InterpPlus();
+		parser = new ParserPlus();
 	}
 
 	public function testNotNull() {
-		var script = 'class Object {}';
-		var ast = getAst(script);
-		execute(ast);
-		var object = get("Object");
-		Assert.notNull(object);
+		script = 'class Object {}';
+
+		Assert.notNull(get("Object"));
 	}
 
 	public function testVariable() {
-		var script = '
+		script = '
 		class Object {
 			var mass:physics.Mass = 10;
 		}
 		';
-		var ast = getAst(script);
-		execute(ast);
-		var object = get("Object");
+
+		var object = returnedValue;
 		Assert.equals(10, object.mass);
 	}
 
 	public function testFunction() {
-		var script = '
+		set("pass", Assert.pass);
+		script = '
 		public function main()
 			pass();
 		';
-		var ast = getAst(script);
-		set("pass", Assert.pass);
-		execute(ast);
-		var main = get("main");
+
+		var main = returnedValue;
 		main();
 	}
 
-	public function testPackage() {
-		var script = 'package test;';
-		var ast = getAst(script);
-		execute(ast);
+	public function testPackageName() {
+		script = 'package test;';
 
 		Assert.equals("test", interp.packageName);
 	}
 
-	public function testImports() {
-		var script = '
+	public function testImport() {
+		script = '
 		import utest.Assert;
 
 		Assert.pass();
 		';
-		var ast = getAst(script);
-		execute(ast);
 	}
 
 	public function testNew() {
-		var script = '
+		set("Assert", Assert);
+		script = '
 		class Object {
 			public function new()
 				Assert.pass();
 		}
-		';
-		var ast = getAst(script);
-		set("Assert", Assert);
-		execute(ast);
 
-		script = 'new Object();';
-		ast = getAst(script);
-		execute(ast);
+		new Object();
+		';
 	}
 
 	public function testThisKeyword() {
-		var script = '
+		set("Assert", Assert);
+		script = '
 		class Object {
 			var mass:Float = 0;
 			public function new(mass:Float) {
@@ -111,43 +120,37 @@ class InterpPlusTest {
 			}
 		}
 		';
-		var ast = getAst(script);
-		set("Assert", Assert);
-		execute(ast);
 
-		var Object = get("Object");
-		var object = ClassUtil.create(Object, [20]);
-		object.assert(20);
+		var mass = 20;
+		var Object = returnedValue;
+		var object = ClassUtil.create(Object, [mass]);
+		object.assert(mass);
 	}
 
-	public function testStaticFunctionWithVarDeclare() {
-		var script = "
-		class Object {
+	public function testStaticFunctionWithVarDeclareNoError() {
+		script = "
+		class StatFuncVarDecNoEr {
             public static function main() {
                 var x = 10;
             }
     	}
-		";
-		var ast = getAst(script);
-		execute(ast);
-		var main = get("main");
+
 		main();
+		";
 		Assert.pass();
 	}
 
-	public function testVariableDeclaredWithoutValue() {
+	public function testVariableDeclaredWithoutValueNoError() {
 		var script = "
-		class Test {
+		class VarDecWitValNoEr {
 			var sprite;
     	}
 		";
-		var ast = getAst(script);
-		execute(ast);
 		Assert.pass();
 	}
 
 	public function testWithoutThis() {
-		var script = '
+		script = '
 		class WithoutThis {
 			var x:Int;
 			public function new() {
@@ -155,39 +158,33 @@ class InterpPlusTest {
 			}
 		}
 		';
-		var ast = getAst(script);
-		execute(ast);
-		var WithoutThis = get("WithoutThis");
-		var testObject = ClassUtil.create(WithoutThis);
-		Assert.equals(0, testObject.x);
+		var WithoutThis = returnedValue;
+		var withoutThis = ClassUtil.create(WithoutThis);
+		Assert.equals(0, withoutThis.x);
 	}
 
 	public function testSetGlobalField() {
-		var script = '
+		script = '
 		class SetGlobalField {
 			public function new() {
 				pass = true;
 			}
 		}
 		';
-		var ast = getAst(script);
-		execute(ast);
-		var SetGlobalField = get("SetGlobalField");
-		var testObject = ClassUtil.create(SetGlobalField);
-		Assert.isTrue(testObject.pass);
+		var SetGlobalField = returnedValue;
+		var setGlobalField = ClassUtil.create(SetGlobalField);
+		Assert.isTrue(setGlobalField.pass);
 	}
 
-	public function testMultipleClass() {
-		var script = '
+	public function testMultipleClassNoError() {
+		script = '
 		class Entity {}
 		class Player {}';
-
-		execute(getAst(script));
 		Assert.pass();
 	}
 
 	public function testFunctionReturnValue() {
-		var script = '
+		script = '
 		class FunctionReturnValue {
 			public function new() {}
 
@@ -197,8 +194,8 @@ class InterpPlusTest {
 		}
 
 		var test = new FunctionReturnValue();
-		test.getNum();
+		num = test.getNum();
 		';
-		Assert.equals(10, execute(getAst(script)));
+		Assert.equals(10, returnedValue);
 	}
 }
