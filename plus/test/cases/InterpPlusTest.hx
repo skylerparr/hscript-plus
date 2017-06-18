@@ -9,6 +9,7 @@ import utest.Assert;
 class InterpPlusTest {
 	var parser:ParserPlus;
 	var interp:InterpPlus;
+	
 	var script(default, set):String;
 	var ast:Expr;
 	var returnedValue:Dynamic;

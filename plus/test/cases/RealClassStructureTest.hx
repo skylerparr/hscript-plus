@@ -14,95 +14,123 @@ class RealClassStructureTest {
 	var Player:Dynamic;
 	var player:Dynamic;
 
-	var ast:hscript.Expr;
+	var script(default, set):String;
+	var ast:Expr;
+	var returnedValue:Dynamic;
+	var traceOnce:Bool = false;
 
-	public function new() {
-		Player = ClassUtil.createClass(Sprite);
+	function set_script(newScript:String) {
+		script = newScript;
+		parseToAst();
+		traceAstOnceIfRequest();
+		execute();
+		return newScript;
 	}
 
-	inline function getAst(script:String) {
-		return parser.parseString(script);
+	function parseToAst() {
+		ast = parser.parseString(script);
 	}
 
-	inline function execute(ast) {
-		return interp.execute(ast);
+	function traceAstOnceIfRequest() {
+		if (traceOnce) {
+			trace(ast);
+			traceOnce = false;
+		}
 	}
 
-	inline function executeScript(script:String, traceAST:Bool = false) {
-		return execute(ast = getAst(script));
+	inline function execute() {
+		return returnedValue = interp.execute(ast);
 	}
 
-	inline function executeScriptTraceAST(script:String) {
-		ast = getAst(script);
-		trace(ast);
-		return execute(ast);
+	inline function get(name:String) {
+		return interp.variables.get(name);
 	}
 
 	inline function set(name:String, value:Dynamic) {
 		interp.variables.set(name, value);
 	}
 
+	public function new() {
+		Player = ClassUtil.createClass(Object);
+	}
+
 	public function setup() {
 		interp = new InterpPlus();
 		parser = new ParserPlus();
+
 		player = ClassUtil.create(Player);
 		set("player", player);
 		set("Player", Player);
 	}
 
 	public function testClassValue() {
-		Assert.equals(Player.__super, executeScript("Player"));
+		script = "Player";
+		Assert.equals(Player.__super, returnedValue);
 	}
 
 	public function testExpr() {
-		Assert.equals(100, executeScript("player.health"));
+		script = "player.mass";
+		Assert.equals(100, returnedValue);
 	}
 
 	public function testAssignment() {
-		executeScript('player.health = 50');
-		Assert.equals(50, player.__super.health);
+		script = 'player.mass = 50';
+		Assert.equals(50, player.__super.mass);
 	}
 
 	public function testIncrement() {
-		executeScript('player.health++');
-		Assert.equals(101, player.__super.health);
+		script = 'player.mass++';
+
+		Assert.equals(101, player.__super.mass);
 	}
 
 	public function testDecrement() {
-		var script = 'player.health--';
-		var ast = getAst(script);
-		execute(ast);
+		script = 'player.mass--';
 
-		Assert.equals(99, player.__super.health);
+		Assert.equals(99, player.__super.mass);
 	}
 
 	public function testPlusEqual() {
-		var script = 'player.health += 50';
-		var ast = getAst(script);
-		execute(ast);
+		script = 'player.mass += 50';
 
-		Assert.equals(150, player.__super.health);
+		Assert.equals(150, player.__super.mass);
+	}
+
+	public function testMinusEqual() {
+		script = 'player.mass -= 50';
+
+		Assert.equals(50, player.__super.mass);
+	}
+
+	public function testBooleanOperators() {
+		script = 'player.mass == 100';
+		Assert.isTrue(returnedValue);
+
+		script = 'player.mass < 150';
+		Assert.isTrue(returnedValue);
+
+		script = 'player.mass > 150';
+		Assert.isFalse(returnedValue);
 	}
 
 	public function testClassValueInFunctionCall() {
 		set("wrap", v -> v);
-		Assert.equals(Player.__super, executeScript("wrap(Player)"));
+		script = "wrap(Player)";
+
+		Assert.equals(Player.__super, returnedValue);
 	}
 
 	public function testAccessSuperIdent() {
 		var e = EIdent("player");
-		Assert.same(EField(e, "__super"), interp.accessSuper(e));
+		var expected = EField(e, "__super");
+
+		Assert.same(expected, interp.accessSuper(e));
 	}
 
 	public function testAccessSuperField() {
-		var e = EField(EIdent("player"), "health");
-		Assert.same(EField(EField(EIdent("player"), "__super"), "health"), interp.accessSuper(e));
-	}
-}
+		var e = EField(EIdent("player"), "mass");
+		var expected = EField(EField(EIdent("player"), "__super"), "mass");
 
-class Sprite {
-	public var health:Int;
-	public function new() {
-		health = 100;
+		Assert.same(expected, interp.accessSuper(e));
 	}
 }
