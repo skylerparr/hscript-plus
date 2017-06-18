@@ -72,8 +72,8 @@ enum Expr {
 	EDoWhile( cond : Expr, e : Expr);
 
 	EClass(name:String, e:Expr, ?baseClass:String);
-	EPackage(path:Array<String>);
-	EImport(path:Array<String>);
+	EPackage(path:String);
+	EImport(path:String);
 }
 
 typedef Argument = { name : String, ?t : CType, ?opt : Bool };

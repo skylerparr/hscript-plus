@@ -260,11 +260,9 @@ class Printer {
 			add("}");
 
 		case EPackage(path):
-			var name = path.join(".");
-			add("package $name;");
+			add("package $path;");
 		case EImport(path):
-			var name = path.join(".");
-			add("import $name;");
+			add("import $path;");
 		case EClass(name, e, baseClass):
 			add('class $name');
 			if (baseClass != null)

@@ -32,9 +32,9 @@ class InterpPlus extends Interp {
 
 		switch (edef(e)) {
 			case EPackage(path):
-				packageName = path.join(".");
+				packageName = path;
 			case EImport(path):
-				importClass(path.join("."));
+				importClass(path);
 			case EClass(name, e, baseClass):
 				var baseClassObj = baseClass == null ? null : variables.get(baseClass);
 				var cls = ClassUtil.createClass(name, baseClassObj, { __statics:new Array<String>() });

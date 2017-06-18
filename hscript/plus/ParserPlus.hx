@@ -91,19 +91,20 @@ class ParserPlus extends Parser {
 		}
 	}
 
-	function parsePath():Array<String> {
+	function parsePath():String {
 		var tk = token();
 		switch (tk) {
 			case TId(id):
-				var path = [id];
+				var path = id;
 				while (true) {
 					tk = token();
 					if (tk != TDot)
 						break;
+					path += ".";
 					tk = token();
 					switch (tk) {
 						case TId(id):
-							path.push(id);
+							path += id;
 						default:
 							unexpected(tk);
 					}
@@ -111,10 +112,10 @@ class ParserPlus extends Parser {
 				return path;
 			case TSemicolon:
 				push(tk);
-				return [];
+				return "";
 			default:
 				unexpected(tk);
-				return [];
+				return "";
 		}
 	}
 
