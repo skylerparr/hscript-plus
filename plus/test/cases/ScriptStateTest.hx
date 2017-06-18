@@ -5,6 +5,14 @@ import hscript.plus.ScriptState;
 
 class ScriptStateTest {
     var state:ScriptState;
+    var script(default, set):String;
+    var returnedValue:Dynamic;
+
+    function set_script(newScript:String) {
+        script = newScript;
+        return returnedValue = state.executeString(newScript);
+        return newScript;
+    }    
 
     public function new() {}
 
@@ -40,7 +48,7 @@ class ScriptStateTest {
     }
 
     public function testClassCreated() {
-        var script = '
+        script = '
         class ClassCreated {
             public static function main() {
                 return new ClassCreated(10);
@@ -52,17 +60,16 @@ class ScriptStateTest {
                 this.mass = mass;
         }        
         ';
-        var testObject = 
-        state.executeString(script);
-        Assert.equals(10, testObject.mass);
+        var object = returnedValue;
+        Assert.equals(10, object.mass);
     }
 
-    public function testExecuteFile_Import() {
-        state.executeFile("plus/test/scripts/ExecuteFile_Import.hx");
+    public function testExecuteFile() {
+        state.executeFile("plus/test/scripts/ExecuteFile.hx");
     }
 
     public function testMainFunctionAutoCalled() {
-        var script = "
+        script = "
         import utest.Assert;
 
         class MainFunctionAutoCalled {
@@ -71,16 +78,14 @@ class ScriptStateTest {
             }
         }
         ";
-        state.executeString(script);
     }
 
     public function testImportOtherScript() {
-        var script = "
+        state.scriptDirectory = "plus/test/scripts/";
+        script = "
         import ImportOtherScript;
 
         new ImportOtherScript();
         ";
-        state.scriptDirectory = "plus/test/scripts/";
-        state.executeString(script);
     }
 }   
