@@ -5,78 +5,69 @@ import hscript.plus.ClassUtil;
 
 @:access(hscript.plus.ClassUtil)
 class ClassUtilTest {
+    public var Player:Dynamic;
+
     public function new() {}
 
-    public function testCreate_Constructor() {
+    public function setup() {
+        Player = ClassUtil.createClass(Object);
+    }
+
+    public function testCreateWithArgs() {
         var Player = ClassUtil.createClass({ "name": "" });
         // set new()
         Reflect.setField(Player, "new", (_this, name) -> _this.name = name);
 
         var name = "Bob";
-        var point = ClassUtil.create(Player, [name]);
+        var player = ClassUtil.create(Player, [name]);
 
-        Assert.equals(name, point.name);
+        Assert.equals(name, player.name);
     }
 
-    public function testCreate_SuperObject_NotNull() {
-        var Player = ClassUtil.createClass(TestSprite);
+    public function testSuperObject() {
         var player = ClassUtil.create(Player);
         Assert.notNull(player.__super);
     }
     
-    public function testCreate_SuperObjectField() {
-        var Player = ClassUtil.createClass(TestSprite);
+    public function testFieldOfSuperObject() {
         var player = ClassUtil.create(Player);
         Assert.equals("", player.__super.name);
     }
 
-    public function testCreateClass_Name() {
-        var className = "ClassName";
+    public function testClassName() {
+        var className = "Object";
         var Class = ClassUtil.createClass(className);
         Assert.equals(className, Class.className);
     }
 
-    public function testClassExtends_SuperClass() {
+    public function testSuperClass() {
         var Controller = {};
         var Keyboard = ClassUtil.createClass(Controller);
         
         Assert.equals(Controller, Keyboard.__super);
     }
 
-    public function testCreateClass_SuperClass_RealClass() {
-        var Test = ClassUtil.createClass(ClassUtilTest);
-        
-        Assert.equals(ClassUtilTest, Test.__super);
+    public function testRealSuperClass() {
+        Assert.equals(Object, Player.__super);
     }
 
-    public function testCreateClass_BodyParameter() {
+    public function testBodyParameter() {
         var Controller = {};
         var Keyboard = ClassUtil.createClass(Controller, { enable:false });
         
         Assert.notNull(Keyboard.enable);
     }
 
-    public function testClassExtends_StaticFieldsRemoved() {
+    public function testStaticFieldsRemoved() {
         var Entity:Dynamic = { pop:0, __statics:["pop"] };
         var Enemy:Dynamic = ClassUtil.createClass(Entity);
 
         Assert.isNull(Enemy.pop);
     }
 
-    public function testSuperHasField() {
-        var obj = { __super: new TestSprite() };
-        Assert.isTrue(ClassUtil.superHasField(obj, "name"));
-    }
-
-    public function testSuperIsClass() {
-        var obj = { __super: new TestSprite() };
-        Assert.isTrue(ClassUtil.superIsClass(obj));
-    }
-}
-
-class TestSprite {
-    public var name:String;
-    public function new() {
-        name = "";
+    public function testSuperHelperFunctions() {
+        var object = { __super: new Object() };
+        Assert.isTrue(ClassUtil.superHasField(object, "name"));
+        Assert.isTrue(ClassUtil.superIsClass(object));
     }
 }
