@@ -1,58 +1,10 @@
 package cases;
 
-import hscript.Expr;
-import hscript.plus.ClassUtil;
-import hscript.plus.InterpPlus;
-import hscript.plus.ParserPlus;
 import utest.Assert;
 
-class InterpPlusTest {
-	var parser:ParserPlus;
-	var interp:InterpPlus;
-	
-	var script(default, set):String;
-	var ast:Expr;
-	var returnedValue:Dynamic;
-	var traceOnce:Bool = false;
+using hscript.plus.ClassUtil;
 
-	function set_script(newScript:String) {
-		script = newScript;
-		parseToAst();
-		traceAstOnceIfRequest();
-		execute();
-		return newScript;
-	}
-
-	function parseToAst() {
-		ast = parser.parseString(script);
-	}
-
-	function traceAstOnceIfRequest() {
-		if (traceOnce) {
-			trace(ast);
-			traceOnce = false;
-		}
-	}
-
-	inline function execute() {
-		return returnedValue = interp.execute(ast);
-	}
-
-	inline function get(name:String) {
-		return interp.variables.get(name);
-	}
-
-	inline function set(name:String, value:Dynamic) {
-		interp.variables.set(name, value);
-	}
-
-	public function new() {}
-
-	public function setup() {
-		interp = new InterpPlus();
-		parser = new ParserPlus();
-	}
-
+class InterpPlusTest extends SimpleScriptStateTest {
 	public function testNotNull() {
 		script = 'class Object {}';
 
@@ -71,10 +23,9 @@ class InterpPlusTest {
 	}
 
 	public function testFunction() {
-		set("pass", Assert.pass);
 		script = '
 		public function main()
-			pass();
+			Assert.pass();
 		';
 
 		var main = returnedValue;
@@ -84,7 +35,7 @@ class InterpPlusTest {
 	public function testPackageName() {
 		script = 'package test;';
 
-		Assert.equals("test", interp.packageName);
+		Assert.equals("test", packageName);
 	}
 
 	public function testImport() {
@@ -96,7 +47,6 @@ class InterpPlusTest {
 	}
 
 	public function testNew() {
-		set("Assert", Assert);
 		script = '
 		class Object {
 			public function new()
@@ -107,8 +57,7 @@ class InterpPlusTest {
 		';
 	}
 
-	public function testThisKeyword() {
-		set("Assert", Assert);
+	public function testThis() {
 		script = '
 		class Object {
 			var mass:Float = 0;
@@ -137,17 +86,18 @@ class InterpPlusTest {
     	}
 
 		main();
-		";
 		Assert.pass();
+		";
 	}
 
 	public function testVariableDeclaredWithoutValueNoError() {
-		var script = "
+		script = "
 		class VarDecWitValNoEr {
 			var sprite;
     	}
-		";
+
 		Assert.pass();
+		";
 	}
 
 	public function testWithoutThis() {
@@ -180,8 +130,10 @@ class InterpPlusTest {
 	public function testMultipleClassNoError() {
 		script = '
 		class Entity {}
-		class Player {}';
+		class Player {}
+
 		Assert.pass();
+		';
 	}
 
 	public function testFunctionReturnValue() {
@@ -195,7 +147,7 @@ class InterpPlusTest {
 		}
 
 		var test = new FunctionReturnValue();
-		num = test.getNum();
+		test.getNum();
 		';
 		Assert.equals(10, returnedValue);
 	}

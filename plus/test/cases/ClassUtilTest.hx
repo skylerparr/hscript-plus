@@ -10,7 +10,7 @@ class ClassUtilTest {
     public function new() {}
 
     public function setup() {
-        Player = ClassUtil.createClass(Object);
+        Player = ClassUtil.createClass(Sprite);
     }
 
     public function testCreateWithArgs() {
@@ -35,7 +35,7 @@ class ClassUtilTest {
     }
 
     public function testClassName() {
-        var className = "Object";
+        var className = "Sprite";
         var Class = ClassUtil.createClass(className);
         Assert.equals(className, Class.className);
     }
@@ -48,7 +48,7 @@ class ClassUtilTest {
     }
 
     public function testRealSuperClass() {
-        Assert.equals(Object, Player.__super);
+        Assert.equals(Sprite, Player.__super);
     }
 
     public function testBodyParameter() {
@@ -66,8 +66,8 @@ class ClassUtilTest {
     }
 
     public function testSuperHelperFunctions() {
-        var object = { __super: new Object() };
-        Assert.isTrue(ClassUtil.superHasField(object, "name"));
-        Assert.isTrue(ClassUtil.superIsClass(object));
+        var sprite = { __super: new Sprite() };
+        Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
+        Assert.isTrue(ClassUtil.superIsClass(sprite));
     }
 }

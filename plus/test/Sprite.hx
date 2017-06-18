@@ -1,7 +1,6 @@
-package cases;
+package;
 
-
-class Object {
+class Sprite {
     public var name:String;
     public var mass:Int;
     

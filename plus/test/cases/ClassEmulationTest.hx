@@ -1,66 +1,25 @@
 package cases;
 
 import hscript.plus.ClassUtil;
-import hscript.plus.InterpPlus;
-import hscript.plus.ParserPlus;
 import utest.Assert;
 import hscript.Expr;
 
-@:access(hscript.plus.InterpPlus)
-class ClassEmulationTest {
-	var parser:ParserPlus;
-	var interp:InterpPlus;
-	
+class ClassEmulationTest extends SimpleScriptStateTest {
 	var Player:Dynamic;
 	var player:Dynamic;
 
-	var script(default, set):String;
-	var ast:Expr;
-	var returnedValue:Dynamic;
-	var traceOnce:Bool = false;
-
-	function set_script(newScript:String) {
-		script = newScript;
-		parseToAst();
-		traceAstOnceIfRequest();
-		execute();
-		return newScript;
-	}
-
-	function parseToAst() {
-		ast = parser.parseString(script);
-	}
-
-	function traceAstOnceIfRequest() {
-		if (traceOnce) {
-			trace(ast);
-			traceOnce = false;
-		}
-	}
-
-	inline function execute() {
-		return returnedValue = interp.execute(ast);
-	}
-
-	inline function get(name:String) {
-		return interp.variables.get(name);
-	}
-
-	inline function set(name:String, value:Dynamic) {
-		interp.variables.set(name, value);
-	}
-
 	public function new() {
-		Player = ClassUtil.createClass(Object);
+		super();
+		Player = ClassUtil.createClass(Sprite);
 	}
 
-	public function setup() {
-		interp = new InterpPlus();
-		parser = new ParserPlus();
+	override public function setup() {
+		super.setup();
 
 		player = ClassUtil.create(Player);
-		set("player", player);
-		set("Player", Player);
+		setMany
+		({ "player": player,
+		"Player": Player });
 	}
 
 	public function testClassValue() {
@@ -124,13 +83,13 @@ class ClassEmulationTest {
 		var e = EIdent("player");
 		var expected = EField(e, "__super");
 
-		Assert.same(expected, interp.accessSuper(e));
+		Assert.same(expected, accessSuper(e));
 	}
 
 	public function testAccessSuperField() {
 		var e = EField(EIdent("player"), "mass");
 		var expected = EField(EField(EIdent("player"), "__super"), "mass");
 
-		Assert.same(expected, interp.accessSuper(e));
+		Assert.same(expected, accessSuper(e));
 	}
 }
