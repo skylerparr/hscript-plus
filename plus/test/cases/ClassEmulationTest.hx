@@ -7,7 +7,7 @@ import utest.Assert;
 import hscript.Expr;
 
 @:access(hscript.plus.InterpPlus)
-class RealClassStructureTest {
+class ClassEmulationTest {
 	var parser:ParserPlus;
 	var interp:InterpPlus;
 	
