@@ -7,6 +7,13 @@ import hscript.plus.ParserPlus;
 @:access(hscript.plus.ParserPlus.expr)
 class ParserPlusTest {
 	var parser:ParserPlus;
+	var script(default, set):String;
+	var ast:Expr;
+
+	function set_script(newScript:String) {
+		ast = parser.parseString(newScript);
+		return script = newScript;
+	}
 
 	public function new() {}
 
@@ -14,45 +21,40 @@ class ParserPlusTest {
 		parser = new ParserPlus();
 	}
 
-	inline function getAst(script:String) {
-		return parser.parseString(script);
+	inline function getExpr(?expr:Expr) {
+		expr = expr == null ? ast : expr;
+		return parser.expr(expr);
 	}
 
 	public function testClassName() {
-		var script = 'class Box {}';
-		var ast = getAst(script);
+		script = 'class Sprite {}';
 		
-		switch (parser.expr(ast)) {
+		switch (getExpr()) {
 			case EClass(name, _, _):
-				Assert.equals("Box", name);
-			default:
-				Assert.fail();
+				Assert.equals("Sprite", name);
+			default: Assert.fail();
 		}
 	}
 
 	public function testBaseClassName() {
-		var script = 'class Box extends Cardboard {}';
-		var ast = getAst(script);
+		script = 'class Sprite extends Object {}';
 		
-		switch (parser.expr(ast)) {
+		switch (getExpr()) {
 			case EClass(_, _, baseClass):
-				Assert.equals("Cardboard", baseClass);
-			default:
-				Assert.fail();
+				Assert.equals("Object", baseClass);
+			default: Assert.fail();
 		}
 	}
 
-	public function testClassBody() {
-		var script = 'class Box {
+	public function testClassBodyIsABlock() {
+		script = 'class Box {
 			var mass:Float = 10;
-
 			function new(this) {}
 		}';
-		var ast = getAst(script);
 		
-		switch (parser.expr(ast)) {
+		switch (getExpr()) {
 			case EClass(_, e, _):
-				switch (parser.expr(e)) {
+				switch (getExpr(e)) {
 					case EBlock(_): Assert.pass();
 					default: Assert.fail();
 				}
@@ -62,59 +64,44 @@ class ParserPlusTest {
 	}
 
 	public function testAccessModifiers() {
-		var script = 'public static function main() {}';
-		var ast = getAst(script);
+		script = 'public inline static function build() {}';
 		
-		switch (parser.expr(ast)) {
+		switch (getExpr()) {
 			case EFunction(_, _, _, _, access):
+				Assert.contains(APublic, access);
+				Assert.contains(AInline, access);
 				Assert.contains(AStatic, access);
 			default: Assert.fail();
 		}
 	}
 
 	public function testPackage() {
-		var script = 'package test;';
-		var ast = getAst(script);
-		
-		switch (parser.expr(ast)) {
+		script = 'package;';
+		packageNameIs("");
+
+		script = 'package test;';
+		packageNameIs("test");
+
+		script = 'package test.cases;';
+		packageNameIs("test.cases");
+	}
+
+	function packageNameIs(name:String) {
+		switch (getExpr()) {
 			case EPackage(path):
-				Assert.equals("test", path[0]);
+				Assert.equals(name, path);
 			default: Assert.fail();
 		}
 	}
 
-	public function testImports() {
-		var packages = ["test.TestClass", "physics.Box"];
-		var script = '
+	public function testImport() {
+		var packages:Array<String> = ["test.TestClass", "physics.Box"];
+		script = '
 		import ${packages[0]};
 		import ${packages[1]};
 		';
-		var ast = getAst(script);
+		var ast = EBlock([EImport(packages[0]), EImport(packages[1])]);
 
-		switch (parser.expr(ast)) {
-			case EBlock(exprList):
-				var index = 0;
-				for (e in exprList) {
-					switch (parser.expr(e)) {
-						case EImport(path):
-							Assert.same(packages[index], path.join('.'));
-						default: Assert.fail();
-					}
-					index++;
-				}
-			default: Assert.fail();
-		}
-	}
-
-	public function testEmptyPackageName() {
-		var script = 'package;';
-		var ast = getAst(script);
-
-		switch (parser.expr(ast)) {
-			case EPackage(path):
-				Assert.equals("", path.join("."));
-			default:
-				Assert.fail();
-		}
+		Assert.same(ast, getExpr());
 	}
 }
