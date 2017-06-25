@@ -1,18 +1,19 @@
 package cases;
 
+import massive.munit.Assert;
 import hscript.plus.ClassUtil;
-import utest.Assert;
 import hscript.Expr;
 
-class ClassEmulationTest extends SimpleScriptStateTest {
+class ClassEmulationTest extends SimpleScriptStateBase {
 	var Player:Dynamic;
 	var player:Dynamic;
 
-	public function new() {
-		super();
+	@BeforeClass
+	public function beforeClass() {
 		Player = ClassUtil.createClass(Sprite);
 	}
 
+	@Before
 	override public function setup() {
 		super.setup();
 
@@ -22,45 +23,53 @@ class ClassEmulationTest extends SimpleScriptStateTest {
 		"Player": Player });
 	}
 
+	@Test
 	public function testClassValue() {
 		script = "Player";
-		Assert.equals(Player.__super, returnedValue);
+		Assert.areEqual(Player.__super, returnedValue);
 	}
 
+	@Test
 	public function testExpr() {
 		script = "player.mass";
-		Assert.equals(100, returnedValue);
+		Assert.areEqual(100, returnedValue);
 	}
 
+	@Test
 	public function testAssignment() {
 		script = 'player.mass = 50';
-		Assert.equals(50, player.__super.mass);
+		Assert.areEqual(50, player.__super.mass);
 	}
 
+	@Test
 	public function testIncrement() {
 		script = 'player.mass++';
 
-		Assert.equals(101, player.__super.mass);
+		Assert.areEqual(101, player.__super.mass);
 	}
 
+	@Test
 	public function testDecrement() {
 		script = 'player.mass--';
 
-		Assert.equals(99, player.__super.mass);
+		Assert.areEqual(99, player.__super.mass);
 	}
 
+	@Test
 	public function testPlusEqual() {
 		script = 'player.mass += 50';
 
-		Assert.equals(150, player.__super.mass);
+		Assert.areEqual(150, player.__super.mass);
 	}
 
+	@Test
 	public function testMinusEqual() {
 		script = 'player.mass -= 50';
 
-		Assert.equals(50, player.__super.mass);
+		Assert.areEqual(50, player.__super.mass);
 	}
 
+	@Test
 	public function testBooleanOperators() {
 		script = 'player.mass == 100';
 		Assert.isTrue(returnedValue);
@@ -72,24 +81,27 @@ class ClassEmulationTest extends SimpleScriptStateTest {
 		Assert.isFalse(returnedValue);
 	}
 
+	@Test
 	public function testClassValueInFunctionCall() {
 		set("wrap", v -> v);
 		script = "wrap(Player)";
 
-		Assert.equals(Player.__super, returnedValue);
+		Assert.areEqual(Player.__super, returnedValue);
 	}
 
+	@Test
 	public function testAccessSuperIdent() {
 		var e = EIdent("player");
 		var expected = EField(e, "__super");
 
-		Assert.same(expected, accessSuper(e));
+		Assert.areEqual(expected, accessSuper(e));
 	}
 
+	@Test
 	public function testAccessSuperField() {
 		var e = EField(EIdent("player"), "mass");
 		var expected = EField(EField(EIdent("player"), "__super"), "mass");
 
-		Assert.same(expected, accessSuper(e));
+		Assert.areEqual(expected, accessSuper(e));
 	}
 }

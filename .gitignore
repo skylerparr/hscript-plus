@@ -1,4 +1,6 @@
 /hscript.swf
 /release.zip
 
-plus/bin/
+plus/bin
+plus/report
+.temp

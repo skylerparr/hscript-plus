@@ -1,0 +1,6 @@
+version=src
+src=plus/test
+bin=plus/bin
+report=plus/report
+hxml=test.hxml
+classPaths=

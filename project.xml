@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="HaxeScriptPlusTests" version="1.0.0" />
+	<app path="plus/bin" main="TestMain" />
+	<app file="as3_test" if="flash" />
+	<app file="js_test" if="html5" />
+	
+	<set name="SWF_VERSION" value="11.8" />
+	<source path="plus/test" />
+	<source path="hscript" />
+	<assets path="plus/test/scripts" />
+	
+	<set name="no-custom-backend" />
+	<set name="unit-test" />
+	
+	<haxelib name="munit" />
+	<haxelib name="openfl" />
+	<haxelib name="hamcrest" />
+</project>

@@ -38,11 +38,16 @@ class ClassUtil {
 	}
 
 	public static inline function superHasField(object:Dynamic, fieldName:String) {
-		return isStructure(object) && hasField(object.__super, fieldName);
+		return hasField(object.__super, fieldName);
 	}
 
-	static inline function hasField(object:Dynamic, fieldName:String) {
-		return object != null && Reflect.hasField(object, fieldName);
+	static function hasField(object:Dynamic, fieldName:String) {
+		return
+		#if cpp
+		Type.getInstanceFields(object).indexOf(fieldName) > -1;
+		#else
+		Reflect.hasField(object, fieldName);
+		#end
 	}
 
 	public static inline function superIsClass(object:Dynamic) {

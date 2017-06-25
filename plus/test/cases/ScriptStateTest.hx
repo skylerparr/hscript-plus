@@ -1,6 +1,6 @@
 package cases;
 
-import utest.Assert;
+import massive.munit.Assert;
 import hscript.plus.ScriptState;
 
 class ScriptStateTest {
@@ -10,23 +10,30 @@ class ScriptStateTest {
 
     function set_script(newScript:String) {
         script = newScript;
-        return returnedValue = state.executeString(newScript);
+        returnedValue = state.executeString(newScript);
         return newScript;
     }    
 
     public function new() {}
 
+    @Before
     public function setup() {
         state = new ScriptState();
+        state.set("pass", false);
+        #if (flash || js)
+        state.getFileContent = openfl.Assets.getText;
+        state.getScriptList = openfl.Assets.list;
+        #end
     }
 
+    @Test
     public function testReadmeUsageExample() {
         var script = "
         class TestObject {
             public static function main() {
                 var object = new TestObject(10, 10);
                 object.name = NAME;
-                Assert.equals('Ball', object.name);
+                Assert.areEqual('Ball', object.name);
             }
             
             public var x:Float = 0;
@@ -47,6 +54,7 @@ class ScriptStateTest {
         TestObject.main();
     }
 
+    @Test
     public function testClassCreated() {
         script = '
         class ClassCreated {
@@ -61,25 +69,29 @@ class ScriptStateTest {
         }        
         ';
         var object = returnedValue;
-        Assert.equals(10, object.mass);
+        Assert.areEqual(10, object.mass);
     }
 
+    @Test
     public function testExecuteFile() {
         state.executeFile("plus/test/scripts/ExecuteFile.hx");
+        assertPass();
     }
-
+    
+    @Test
     public function testMainFunctionAutoCalled() {
         script = "
-        import utest.Assert;
-
         class MainFunctionAutoCalled {
             public static function main() {
-                Assert.pass();
+                pass = true;
             }
         }
         ";
+        
+        assertPass();
     }
 
+    @Test
     public function testImportOtherScript() {
         state.scriptDirectory = "plus/test/scripts/";
         script = "
@@ -87,5 +99,11 @@ class ScriptStateTest {
 
         new ImportOtherScript();
         ";
+        
+        assertPass();
     }
-}   
+
+    function assertPass() {
+        Assert.isTrue(state.get("pass"));
+    }
+}

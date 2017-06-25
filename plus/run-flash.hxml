@@ -1,4 +1,0 @@
-plus/build.hxml
--swf plus/bin/test.swf
-
--cmd start plus/bin/test.swf

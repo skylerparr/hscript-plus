@@ -1,9 +1,7 @@
-package sst;
-
-import utest.Assert;
+package;
 
 class ImportOtherScript {
     public function new() {
-        Assert.pass();
+        pass = true;
     }
 }

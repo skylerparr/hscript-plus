@@ -1,6 +1,6 @@
 package cases;
 
-import utest.Assert;
+import massive.munit.Assert;
 import hscript.Expr;
 import hscript.plus.ParserPlus;
 
@@ -17,6 +17,7 @@ class ParserPlusTest {
 
 	public function new() {}
 
+	@Before
 	public function setup() {
 		parser = new ParserPlus();
 	}
@@ -26,26 +27,29 @@ class ParserPlusTest {
 		return parser.expr(expr);
 	}
 
+	@Test
 	public function testClassName() {
 		script = 'class Sprite {}';
 		
 		switch (getExpr()) {
 			case EClass(name, _, _):
-				Assert.equals("Sprite", name);
-			default: Assert.fail();
+				Assert.areEqual("Sprite", name);
+			default:
 		}
 	}
 
+	@Test
 	public function testBaseClassName() {
 		script = 'class Sprite extends Object {}';
 		
 		switch (getExpr()) {
 			case EClass(_, _, baseClass):
-				Assert.equals("Object", baseClass);
-			default: Assert.fail();
+				Assert.areEqual("Object", baseClass);
+			default:
 		}
 	}
 
+	@Test
 	public function testClassBodyIsABlock() {
 		script = 'class Box {
 			var mass:Float = 10;
@@ -55,32 +59,39 @@ class ParserPlusTest {
 		switch (getExpr()) {
 			case EClass(_, e, _):
 				switch (getExpr(e)) {
-					case EBlock(_): Assert.pass();
-					default: Assert.fail();
+					case EBlock(_):
+					default: Assert.fail('Expected EBlock but was [$e]');
 				}
 			default:
-				Assert.fail();
 		}
 	}
 
+	@Test
 	public function testAccessModifiers() {
 		script = 'public inline static function build() {}';
 		
+		var contains = (what:Dynamic, array:Array<Dynamic>) ->
+			if (array.indexOf(what) == -1) {
+				Assert.assertionCount++;
+				Assert.fail('Array does not contain [$what]');
+			}
+
 		switch (getExpr()) {
 			case EFunction(_, _, _, _, access):
-				Assert.contains(APublic, access);
-				Assert.contains(AInline, access);
-				Assert.contains(AStatic, access);
-			default: Assert.fail();
+				contains(APublic, access);
+				contains(AInline, access);
+				contains(AStatic, access);
+			default:
 		}
 	}
 
+	@Test
 	public function testPackage() {
 		script = 'package;';
 		packageNameIs("");
 
 		script = 'package test;';
-		packageNameIs("test");
+		packageNameIs("test");	
 
 		script = 'package test.cases;';
 		packageNameIs("test.cases");
@@ -89,19 +100,23 @@ class ParserPlusTest {
 	function packageNameIs(name:String) {
 		switch (getExpr()) {
 			case EPackage(path):
-				Assert.equals(name, path);
-			default: Assert.fail();
+				Assert.areEqual(name, path);
+			default:
 		}
 	}
 
+	@Test
 	public function testImport() {
 		var packages:Array<String> = ["test.TestClass", "physics.Box"];
 		script = '
 		import ${packages[0]};
 		import ${packages[1]};
 		';
-		var ast = EBlock([EImport(packages[0]), EImport(packages[1])]);
+		var expected = EBlock([EImport(packages[0]), EImport(packages[1])]);
 
-		Assert.same(ast, getExpr());
+		switch (getExpr()) {
+			case expected:
+			default: Assert.fail('Expected $expected but was [$ast]');
+		}
 	}
 }

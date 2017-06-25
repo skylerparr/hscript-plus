@@ -1,16 +1,17 @@
 package cases;
 
-import utest.Assert;
-
+import massive.munit.Assert;
 using hscript.plus.ClassUtil;
 
-class InterpPlusTest extends SimpleScriptStateTest {
+class InterpPlusTest extends SimpleScriptStateBase {
+	@Test
 	public function testNotNull() {
 		script = 'class Object {}';
 
-		Assert.notNull(get("Object"));
+		Assert.isNotNull(get("Object"));
 	}
 
+	@Test
 	public function testVariable() {
 		script = '
 		class Object {
@@ -19,44 +20,64 @@ class InterpPlusTest extends SimpleScriptStateTest {
 		';
 
 		var object = returnedValue;
-		Assert.equals(10, object.mass);
+		Assert.areEqual(10, object.mass);
 	}
 
+	@Test
 	public function testFunction() {
 		script = '
 		public function main()
-			Assert.pass();
-		';
+			pass = true;';
 
 		var main = returnedValue;
 		main();
 	}
 
+	@Test
 	public function testPackageName() {
 		script = 'package test;';
 
-		Assert.equals("test", packageName);
+		Assert.areEqual("test", packageName);
 	}
 
+	@Test
 	public function testImport() {
 		script = '
-		import utest.Assert;
+		import massive.munit.Assert;
 
-		Assert.pass();
+		pass = true;
+		assertPass();
 		';
 	}
 
-	public function testNew() {
+	@Test
+	public function testSetGlobalField() {
 		script = '
-		class Object {
-			public function new()
-				Assert.pass();
+		class SetGlobalField {
+			public function new() {}
+			public function set()
+				pass = true;
 		}
 
-		new Object();
+		new SetGlobalField().set();
 		';
+		assertPass();
 	}
 
+	@Test
+	public function testNew() {
+		script = '
+		class New {
+			public function new()
+				pass = true;
+		}
+
+		new New();
+		';
+		assertPass();
+	}
+
+	@Test
 	public function testThis() {
 		script = '
 		class Object {
@@ -66,7 +87,7 @@ class InterpPlusTest extends SimpleScriptStateTest {
 			}
 
 			public function assert(value) {
-				Assert.equals(value, mass);
+				Assert.areEqual(value, mass);
 			}
 		}
 		';
@@ -77,6 +98,7 @@ class InterpPlusTest extends SimpleScriptStateTest {
 		object.assert(mass);
 	}
 
+	@Test
 	public function testStaticFunctionWithVarDeclareNoError() {
 		script = "
 		class StatFuncVarDecNoEr {
@@ -86,20 +108,19 @@ class InterpPlusTest extends SimpleScriptStateTest {
     	}
 
 		main();
-		Assert.pass();
 		";
 	}
 
+	@Test
 	public function testVariableDeclaredWithoutValueNoError() {
 		script = "
 		class VarDecWitValNoEr {
 			var sprite;
     	}
-
-		Assert.pass();
 		";
 	}
 
+	@Test
 	public function testWithoutThis() {
 		script = '
 		class WithoutThis {
@@ -111,31 +132,18 @@ class InterpPlusTest extends SimpleScriptStateTest {
 		';
 		var WithoutThis = returnedValue;
 		var withoutThis = ClassUtil.create(WithoutThis);
-		Assert.equals(0, withoutThis.x);
+		Assert.areEqual(0, withoutThis.x);
 	}
 
-	public function testSetGlobalField() {
-		script = '
-		class SetGlobalField {
-			public function new() {
-				pass = true;
-			}
-		}
-		';
-		var SetGlobalField = returnedValue;
-		var setGlobalField = ClassUtil.create(SetGlobalField);
-		Assert.isTrue(setGlobalField.pass);
-	}
-
+	@Test
 	public function testMultipleClassNoError() {
 		script = '
 		class Entity {}
 		class Player {}
-
-		Assert.pass();
 		';
 	}
 
+	@Test
 	public function testFunctionReturnValue() {
 		script = '
 		class FunctionReturnValue {
@@ -149,6 +157,6 @@ class InterpPlusTest extends SimpleScriptStateTest {
 		var test = new FunctionReturnValue();
 		test.getNum();
 		';
-		Assert.equals(10, returnedValue);
+		Assert.areEqual(10, returnedValue);
 	}
 }

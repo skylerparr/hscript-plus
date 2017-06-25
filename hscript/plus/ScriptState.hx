@@ -107,8 +107,8 @@ class ScriptState {
 				return main();	
 		}
 		catch (e:Dynamic) {
-			trace(ast);
 			error(e + CallStack.toString(CallStack.exceptionStack()));
+			trace('Debug AST: $ast');
 		}
 		return null;
 	}
@@ -138,6 +138,11 @@ class ScriptState {
 	 *  @param directory The directory containing the script files
 	 */
 	function loadScriptFromDirectory(directory:String) {
+		if (getScriptList == null) {
+			error('Provide a getScritpList first!');
+			return;
+		}
+
 		var paths:Array<String> = null;
 		// try to get script list
 		try {
@@ -148,7 +153,7 @@ class ScriptState {
 				paths = getScriptList(directory);
 			}
 			catch (e:Dynamic) {
-				throw "`getScriptList`'s first parameter type should be String (path) or Void";
+				error("\ngetScriptList()'s first parameter should be a String (path name) or Void");
 			}
 		}
 

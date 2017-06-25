@@ -1,0 +1,33 @@
+## Flash 9+
+-swf-version 11
+-swf plus/bin/flash/bin/as3_test.swf
+
+--next
+
+## JavaScript
+-js plus/bin/html5/bin/js_test.js
+
+--next
+
+## Neko
+-main TestMain
+-lib munit
+-lib hamcrest
+-cp .
+
+-cp plus/test
+-neko plus/bin/neko_test.n
+
+--next
+
+## CPP
+-main TestMain
+-lib munit
+-lib hamcrest
+-cp .
+
+-cp plus/test
+#-D HXCPP_M64
+-cpp plus/bin/cpp_test
+
+

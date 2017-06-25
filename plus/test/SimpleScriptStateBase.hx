@@ -1,35 +1,38 @@
 package;
 
+import massive.munit.Assert;
 import hscript.plus.ParserPlus;
 import hscript.plus.InterpPlus;
 import hscript.Expr;
-import utest.Assert;
 
 @:access(SimpleScriptState)
 @:access(hscript.plus.InterpPlus.accessSuper)
-class SimpleScriptStateTest {
+class SimpleScriptStateBase {
 	var state:SimpleScriptState;
 	
 	var script(default, set):String;
 	var ast(get, never):Expr;
 	var returnedValue(get, never):Dynamic;
 	var packageName(get, never):String;
-
+	
 	function get_script() return state.script;
-	function set_script(v:String) return state.script = v;
+	function set_script(newScript:String) {
+		state.script = newScript;
+		return newScript;
+	}
 
 	function get_ast() return state.ast;
 	function get_returnedValue() return state.returnedValue;
-
-	function get_packageName() {
-		return state.interp.packageName;
-	}
+	function get_packageName() return state.interp.packageName;
 
 	public function new() {}
 
+	@Before
 	public function setup() {
 		state = new SimpleScriptState();
 		set("Assert", Assert);
+		set("pass", false);
+		set("assertPass", assertPass);
 	}
 
 	public inline function get(name:String) {
@@ -53,6 +56,10 @@ class SimpleScriptStateTest {
 
 	public inline function accessSuper(e:Expr) {
 		return state.interp.accessSuper(e);
+	}
+
+	public inline function assertPass() {
+		Assert.isTrue(get("pass"));
 	}
 }
 

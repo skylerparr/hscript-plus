@@ -1,4 +1,0 @@
--neko plus/bin/test.n
-plus/build.hxml
-
--cmd neko plus/bin/test.n

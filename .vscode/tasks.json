@@ -3,57 +3,9 @@
     "command": "haxe",
     "tasks": [
         {
-            "taskName": "run-neko",
-            "args": ["plus/run-neko.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-flash",
-            "args": ["plus/run-flash.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-cpp",
-            "args": ["plus/run-cpp.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-interp",
-            "args": ["plus/run-interp.hxml"],
-            "suppressTaskName": true,
+            "taskName": "Run All",
+            "args": ["plus/run.hxml"],
             "isBuildCommand": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-js",
-            "args": ["plus/run-js.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-php",
-            "args": ["plus/run-php.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-python",
-            "args": ["plus/run-python.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "run-cs",
-            "args": ["plus/run-cs.hxml"],
-            "suppressTaskName": true,
-            "problemMatcher": "$haxe"
-        },
-        {
-            "taskName": "build-flash",
-            "args": ["plus/build-flash.hxml"],
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
         }

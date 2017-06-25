@@ -1,18 +1,20 @@
 package cases;
 
-import utest.Assert;
+import massive.munit.Assert;
 import hscript.plus.ClassUtil;
 
 @:access(hscript.plus.ClassUtil)
 class ClassUtilTest {
-    public var Player:Dynamic;
+    var Player:Dynamic;
 
     public function new() {}
 
+    @Before
     public function setup() {
         Player = ClassUtil.createClass(Sprite);
     }
 
+    @Test
     public function testCreateWithArgs() {
         var Player = ClassUtil.createClass({ "name": "" });
         // set new()
@@ -21,43 +23,50 @@ class ClassUtilTest {
         var name = "Bob";
         var player = ClassUtil.create(Player, [name]);
 
-        Assert.equals(name, player.name);
+        Assert.areEqual(name, player.name);
     }
 
+    @Test
     public function testSuperObject() {
         var player = ClassUtil.create(Player);
-        Assert.notNull(player.__super);
+        Assert.isNotNull(player.__super);
     }
     
+    @Test
     public function testFieldOfSuperObject() {
         var player = ClassUtil.create(Player);
-        Assert.equals("", player.__super.name);
+        Assert.areEqual("", player.__super.name);
     }
 
+    @Test
     public function testClassName() {
         var className = "Sprite";
         var Class = ClassUtil.createClass(className);
-        Assert.equals(className, Class.className);
+        Assert.areEqual(className, Class.className);
     }
 
+    @Test
     public function testSuperClass() {
         var Controller = {};
         var Keyboard = ClassUtil.createClass(Controller);
         
-        Assert.equals(Controller, Keyboard.__super);
+        Assert.areEqual(Controller, Keyboard.__super);
     }
 
+    @Test
     public function testRealSuperClass() {
-        Assert.equals(Sprite, Player.__super);
+        Assert.areEqual(Sprite, Player.__super);
     }
 
+    @Test
     public function testBodyParameter() {
         var Controller = {};
         var Keyboard = ClassUtil.createClass(Controller, { enable:false });
         
-        Assert.notNull(Keyboard.enable);
+        Assert.isNotNull(Keyboard.enable);
     }
 
+    @Test
     public function testStaticFieldsRemoved() {
         var Entity:Dynamic = { pop:0, __statics:["pop"] };
         var Enemy:Dynamic = ClassUtil.createClass(Entity);
@@ -65,6 +74,7 @@ class ClassUtilTest {
         Assert.isNull(Enemy.pop);
     }
 
+    @Test
     public function testSuperHelperFunctions() {
         var sprite = { __super: new Sprite() };
         Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
