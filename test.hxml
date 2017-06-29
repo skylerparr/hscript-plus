@@ -1,32 +1,55 @@
 ## Flash 9+
--swf-version 11
--swf plus/bin/flash/bin/as3_test.swf
+-main TestMain
+
+-lib munit
+
+-cp hscript
+-cp plus/test
+
+-resource plus/test/scripts/ExecuteFile.hx
+-resource plus/test/scripts/ImportOtherScript.hx
+
+-swf-version 11.8
+-swf plus/bin/as3_test.swf
 
 --next
 
 ## JavaScript
+-main TestMain
+
+-lib munit
+
+-cp hscript
+-cp plus/test
+
+-cp plus/test
+-resource plus/test/scripts/ExecuteFile.hx
+-resource plus/test/scripts/ImportOtherScript.hx
+
 -js plus/bin/html5/bin/js_test.js
 
 --next
 
 ## Neko
 -main TestMain
--lib munit
--lib hamcrest
--cp .
 
+-lib munit
+
+-cp hscript
 -cp plus/test
+
 -neko plus/bin/neko_test.n
 
 --next
 
 ## CPP
 -main TestMain
--lib munit
--lib hamcrest
--cp .
 
+-lib munit
+
+-cp hscript
 -cp plus/test
+
 #-D HXCPP_M64
 -cpp plus/bin/cpp_test
 

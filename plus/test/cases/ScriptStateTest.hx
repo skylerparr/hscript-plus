@@ -21,8 +21,8 @@ class ScriptStateTest {
         state = new ScriptState();
         state.set("pass", false);
         #if (flash || js)
-        state.getFileContent = openfl.Assets.getText;
-        state.getScriptList = openfl.Assets.list;
+        state.getFileContent = path -> haxe.Resource.getString(path);
+        state.getScriptList = (_) -> haxe.Resource.listNames();
         #end
     }
 
