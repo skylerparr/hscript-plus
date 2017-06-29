@@ -2,15 +2,16 @@
 -main TestMain
 
 -lib munit
+-lib hamcrest
 
 -cp hscript
--cp plus/test
+-cp test/src
 
--resource plus/test/scripts/ExecuteFile.hx
--resource plus/test/scripts/ImportOtherScript.hx
+-resource test/scripts/ExecuteFile.hx
+-resource test/scripts/ImportOtherScript.hx
 
--swf-version 11.8
--swf plus/bin/as3_test.swf
+-swf-version 11
+-swf test/bin/as3_test.swf
 
 --next
 
@@ -18,15 +19,15 @@
 -main TestMain
 
 -lib munit
+-lib hamcrest
 
 -cp hscript
--cp plus/test
+-cp test/src
 
--cp plus/test
--resource plus/test/scripts/ExecuteFile.hx
--resource plus/test/scripts/ImportOtherScript.hx
+-resource test/scripts/ExecuteFile.hx
+-resource test/scripts/ImportOtherScript.hx
 
--js plus/bin/html5/bin/js_test.js
+-js test/bin/js_test.js
 
 --next
 
@@ -34,11 +35,12 @@
 -main TestMain
 
 -lib munit
+-lib hamcrest
 
 -cp hscript
--cp plus/test
+-cp test/src
 
--neko plus/bin/neko_test.n
+-neko test/bin/neko_test.n
 
 --next
 
@@ -46,11 +48,10 @@
 -main TestMain
 
 -lib munit
+-lib hamcrest
 
 -cp hscript
--cp plus/test
+-cp test/src
 
 #-D HXCPP_M64
--cpp plus/bin/cpp_test
-
-
+-cpp test/bin/cpp_test

@@ -74,7 +74,7 @@ class ScriptStateTest {
 
     @Test
     public function testExecuteFile() {
-        state.executeFile("plus/test/scripts/ExecuteFile.hx");
+        state.executeFile("test/scripts/ExecuteFile.hx");
         assertPass();
     }
     
@@ -93,7 +93,7 @@ class ScriptStateTest {
 
     @Test
     public function testImportOtherScript() {
-        state.scriptDirectory = "plus/test/scripts/";
+        state.scriptDirectory = "test/scripts/";
         script = "
         import ImportOtherScript;
 

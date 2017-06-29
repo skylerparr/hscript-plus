@@ -1,7 +1,6 @@
 version=src
-src=plus/test
-bin=plus/bin
-report=plus/report
+src=test/src
+bin=test/bin
+report=test/bin/report
 hxml=test.hxml
 classPaths=hscript
-coveragePackages=hscript
