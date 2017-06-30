@@ -3,5 +3,5 @@ src=test/src
 bin=test/bin
 report=test/bin/report
 hxml=test.hxml
-classPaths=hscript
-coveragePackages=hscript
+classPaths=src
+coveragePackages=hscript.plus

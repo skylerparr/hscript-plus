@@ -4,7 +4,7 @@
 -lib munit
 -lib hamcrest
 
--cp hscript
+-cp src
 -cp test/src
 
 -resource test/scripts/ExecuteFile.hx
@@ -21,7 +21,7 @@
 -lib munit
 -lib hamcrest
 
--cp hscript
+-cp src
 -cp test/src
 
 -resource test/scripts/ExecuteFile.hx
@@ -37,7 +37,7 @@
 -lib munit
 -lib hamcrest
 
--cp hscript
+-cp src
 -cp test/src
 
 -neko test/bin/neko_test.n
@@ -50,7 +50,7 @@
 -lib munit
 -lib hamcrest
 
--cp hscript
+-cp src
 -cp test/src
 
 #-D HXCPP_M64
