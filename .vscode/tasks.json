@@ -1,11 +1,35 @@
 {
     "version": "0.1.0",
-    "command": "haxe",
+    "command": "haxelib",
     "tasks": [
         {
-            "taskName": "Run All",
-            "args": ["plus/run.hxml"],
+            "taskName": "Test All Targets",
+            "args": ["run", "munit", "test", "-coverage"],
             "isBuildCommand": true,
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Neko",
+            "args": ["run", "munit", "test", "-coverage", "-neko"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Javascript",
+            "args": ["run", "munit", "test", "-coverage", "-js"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Flash",
+            "args": ["run", "munit", "test", "-coverage", "-as3"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test C++",
+            "args": ["run", "munit", "test", "-coverage", "-cpp"],
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
         }
