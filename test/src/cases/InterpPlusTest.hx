@@ -42,11 +42,13 @@ class InterpPlusTest extends SimpleScriptStateBase {
 
 	@Test
 	public function testImport() {
+		set("Assert", null);
+
 		script = '
 		import massive.munit.Assert;
 
 		pass = true;
-		assertPass();
+		Assert.isTrue(pass);
 		';
 	}
 
@@ -54,27 +56,27 @@ class InterpPlusTest extends SimpleScriptStateBase {
 	public function testSetGlobalField() {
 		script = '
 		class SetGlobalField {
-			public function new() {}
-			public function set()
+			public static function set()
 				pass = true;
 		}
 
-		new SetGlobalField().set();
+		SetGlobalField.set();
 		';
-		assertPass();
+		Assert.isTrue(pass);
 	}
 
 	@Test
 	public function testNew() {
 		script = '
 		class New {
-			public function new()
+			public function new() {
 				pass = true;
+			}
 		}
 
 		new New();
 		';
-		assertPass();
+		Assert.isTrue(pass);
 	}
 
 	@Test
@@ -147,15 +149,12 @@ class InterpPlusTest extends SimpleScriptStateBase {
 	public function testFunctionReturnValue() {
 		script = '
 		class FunctionReturnValue {
-			public function new() {}
-
-			public function getNum() {
+			public static function getNum() {
 				return 10;
 			}
 		}
 
-		var test = new FunctionReturnValue();
-		test.getNum();
+		FunctionReturnValue.getNum();
 		';
 		Assert.areEqual(10, returnedValue);
 	}

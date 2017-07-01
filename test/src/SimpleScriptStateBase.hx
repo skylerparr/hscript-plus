@@ -14,6 +14,7 @@ class SimpleScriptStateBase {
 	var ast(get, never):Expr;
 	var returnedValue(get, never):Dynamic;
 	var packageName(get, never):String;
+	var pass(get, never):Bool;
 	
 	function get_script() return state.script;
 	function set_script(newScript:String) {
@@ -24,6 +25,7 @@ class SimpleScriptStateBase {
 	function get_ast() return state.ast;
 	function get_returnedValue() return state.returnedValue;
 	function get_packageName() return state.interp.packageName;
+	function get_pass() return get("pass");
 
 	public function new() {}
 
@@ -32,7 +34,6 @@ class SimpleScriptStateBase {
 		state = new SimpleScriptState();
 		set("Assert", Assert);
 		set("pass", false);
-		set("assertPass", assertPass);
 	}
 
 	public inline function get(name:String) {
@@ -56,10 +57,6 @@ class SimpleScriptStateBase {
 
 	public inline function accessSuper(e:Expr) {
 		return state.interp.accessSuper(e);
-	}
-
-	public inline function assertPass() {
-		Assert.isTrue(get("pass"));
 	}
 }
 
