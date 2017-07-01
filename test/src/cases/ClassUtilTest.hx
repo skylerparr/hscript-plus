@@ -80,4 +80,10 @@ class ClassUtilTest {
         Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
         Assert.isTrue(ClassUtil.superIsClass(sprite));
     }
+
+    @Test
+	public function testIsStructure() {
+        Assert.isTrue(ClassUtil.isStructure(Player));
+		Assert.isFalse(ClassUtil.isStructure(Sprite));
+	}
 }
