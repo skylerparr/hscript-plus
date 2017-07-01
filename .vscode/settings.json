@@ -5,11 +5,7 @@
     // they should only contain arguments and/or hxml files that are needed for completion,
     // such as -cp, -lib, target output settings and defines.
     "haxe.displayConfigurations": [
-        ["test.hxml"],
-        ["plus/bin/flash/haxe/debug.hxml"],
-        ["plus/bin/flash/haxe/release.hxml"],
-        ["plus/bin/html5/haxe/debug.hxml"],
-        ["plus/bin/html5/haxe/release.hxml"]
+        ["test/test.hxml"]
         // if a hxml file is safe to use, we can just pass it as argument
         // you can add more than one configuration and switch between them
     ]
