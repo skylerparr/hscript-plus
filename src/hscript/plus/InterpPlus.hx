@@ -96,12 +96,19 @@ class InterpPlus extends Interp {
 
 	override function cnew(cl:String, args:Array<Dynamic>):Dynamic {
 		try {
-			return super.cnew(cl, args);
+			var c = super.cnew(cl, args);
+			if (c == null)
+				c = resolveAndCreate(cl, args);
+			return c;
 		}
 		catch (e:Dynamic) {
-			var c = resolve(cl);
-			return ClassUtil.create(c, args);
+			return resolveAndCreate(cl, args);
 		}
+	}
+
+	function resolveAndCreate(cl:String, args:Array<Dynamic>) {
+		var c = resolve(cl);
+		return ClassUtil.create(c, args);
 	}
 
 	override function resolve(id:String):Dynamic {
