@@ -74,10 +74,15 @@ class ClassUtilTest {
         Assert.isNull(Enemy.pop);
     }
 
-    @Test #if cpp @Ignore("Crashing the test suite on cpp") #end
-    public function testSuperHelperFunctions() {
+    @Test
+    public function testSuperHasField() {
         var sprite = { __super: new Sprite() };
         Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
+    }
+
+    @Test
+    public function testSuperIsClass() {
+        var sprite = { __super: new Sprite() };
         Assert.isTrue(ClassUtil.superIsClass(sprite));
     }
 

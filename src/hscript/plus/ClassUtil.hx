@@ -44,7 +44,7 @@ class ClassUtil {
 	static function hasField(object:Dynamic, fieldName:String) {
 		return
 		#if cpp
-		Type.getInstanceFields(object).indexOf(fieldName) > -1;
+		Type.getInstanceFields(Type.getClass(object)).indexOf(fieldName) > -1;
 		#else
 		Reflect.hasField(object, fieldName);
 		#end
