@@ -8,18 +8,14 @@ using StringTools;
 class ScriptState {
 	public var variables(get, null):Map<String, Dynamic>; function get_variables() return _interp.variables;
 
-	/**
-	 *  If you're using OpenFL:
-	 *  getFileContent = openfl.Assets.getText;
-	 */
-	public var getFileContent:String->String #if sys = sys.io.File.getContent #end; 
+	public var getFileContent:String->String 
+	#if sys = sys.io.File.getContent 
+	#elseif openfl = openfl.Assets.getText
+	#end; 
 
-	/**
-	 *  If you're using OpenFL:
-	 *  getScriptList = openfl.Assets.list;
-	 */
-	public var getScriptList:Dynamic->Array<String> #if sys = sys.FileSystem.readDirectory #end;
+	public var getScriptPaths:Void->Array<String> #if openfl = () -> openfl.Assets.list() #end;
 
+	public var getScriptPathsFromDirectory:String->Array<String> #if sys = sys.FileSystem.readDirectory #end;
 
 	public var scriptDirectory(default, set):String;
 	function set_scriptDirectory(newDirectory:String) {
@@ -138,24 +134,13 @@ class ScriptState {
 	 *  @param directory The directory containing the script files
 	 */
 	function loadScriptFromDirectory(directory:String) {
-		if (getScriptList == null) {
-			error('Provide a getScritpList first!');
-			return;
-		}
-
 		var paths:Array<String> = null;
-		// try to get script list
-		try {
-			paths = getScriptList(null);
-		}
-		catch (e:Dynamic) {
-			try {
-				paths = getScriptList(directory);
-			}
-			catch (e:Dynamic) {
-				error("\ngetScriptList()'s first parameter should be a String (path name) or Void");
-			}
-		}
+		
+		if (getScriptPaths != null)
+			paths = getScriptPaths();
+		else if (getScriptPathsFromDirectory != null)
+			paths = getScriptPathsFromDirectory(directory);
+		else error('Provide a function for getScriptPaths or getScriptPathsFromDirectory');
 
 		// filter out paths not ending with ".hx"
 		paths = paths.filter(path -> path.endsWith(".hx"));

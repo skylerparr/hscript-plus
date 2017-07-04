@@ -7,8 +7,7 @@
 -cp src
 -cp test/src
 
--resource test/scripts/ExecuteFile.hx
--resource test/scripts/ImportOtherScript.hx
+-resource test/scripts/Script.hx
 
 -swf-version 11
 -swf test/bin/as3_test.swf
@@ -24,8 +23,7 @@
 -cp src
 -cp test/src
 
--resource test/scripts/ExecuteFile.hx
--resource test/scripts/ImportOtherScript.hx
+-resource test/scripts/Script.hx
 
 -js test/bin/js_test.js
 

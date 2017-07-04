@@ -1,6 +1,6 @@
 package;
 
-class ExecuteFile_Import {
+class Script {
 	public static function main() {
 		pass = true;
 	}

@@ -22,7 +22,7 @@ class ScriptStateTest {
         state.set("pass", false);
         #if (flash || js)
         state.getFileContent = path -> haxe.Resource.getString(path);
-        state.getScriptList = (_) -> haxe.Resource.listNames();
+        state.getScriptPaths = haxe.Resource.listNames;
         #end
     }
 
@@ -74,7 +74,7 @@ class ScriptStateTest {
 
     @Test
     public function testExecuteFile() {
-        state.executeFile("test/scripts/ExecuteFile.hx");
+        state.executeFile("test/scripts/Script.hx");
         assertPass();
     }
     
@@ -95,9 +95,9 @@ class ScriptStateTest {
     public function testImportOtherScript() {
         state.scriptDirectory = "test/scripts/";
         script = "
-        import ImportOtherScript;
+        import Script;
 
-        new ImportOtherScript();
+        new Script();
         ";
         
         assertPass();
