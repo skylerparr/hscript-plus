@@ -5,12 +5,12 @@
 -lib hamcrest
 
 -cp src
--cp test/src
+-cp ..
 
--resource test/scripts/Script.hx
+-resource scripts/Script.hx
 
 -swf-version 11
--swf test/bin/as3_test.swf
+-swf bin/as3_test.swf
 
 --next
 
@@ -21,11 +21,11 @@
 -lib hamcrest
 
 -cp src
--cp test/src
+-cp ..
 
--resource test/scripts/Script.hx
+-resource scripts/Script.hx
 
--js test/bin/js_test.js
+-js bin/js_test.js
 
 --next
 
@@ -36,9 +36,9 @@
 -lib hamcrest
 
 -cp src
--cp test/src
+-cp ..
 
--neko test/bin/neko_test.n
+-neko bin/neko_test.n
 
 --next
 
@@ -49,7 +49,7 @@
 -lib hamcrest
 
 -cp src
--cp test/src
+-cp ..
 
 #-D HXCPP_M64
--cpp test/bin/cpp_test
+-cpp bin/cpp_test

@@ -1,7 +1,0 @@
-version=2.1.2
-src=test/src
-bin=test/bin
-report=test/bin/report
-hxml=test/test.hxml
-classPaths=src
-coveragePackages=hscript.plus
