@@ -104,4 +104,20 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 
 		Assert.areEqual(expected, accessSuper(e));
 	}
+
+	@Test
+	public function testInitializeMemberVariable() {
+		script = "
+		class InitializeMemberVariable extends Sprite {
+			var speed:Int;
+
+			public function new() {
+				speed = 20;
+			}
+		}
+
+		new InitializeMemberVariable().speed;
+		";
+		Assert.areEqual(20, returnedValue);
+	}
 }

@@ -69,14 +69,15 @@ class InterpPlusTest extends SimpleScriptStateBase {
 	public function testNew() {
 		script = '
 		class New {
+			var num:Int = 50;
 			public function new() {
 				pass = true;
 			}
 		}
 
-		new New();
+		new New().num;
 		';
-		Assert.isTrue(pass);
+		Assert.areEqual(50, returnedValue);
 	}
 
 	@Test
