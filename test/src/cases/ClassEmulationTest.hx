@@ -90,19 +90,19 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	}
 
 	@Test
-	public function testAccessSuperIdent() {
+	public function testPrependSuperIdent() {
 		var e = EIdent("player");
 		var expected = EField(e, "__super");
 
-		Assert.areEqual(expected, accessSuper(e));
+		Assert.areEqual(expected, prependSuper(e));
 	}
 
 	@Test
-	public function testAccessSuperField() {
+	public function testPrependSuperField() {
 		var e = EField(EIdent("player"), "mass");
 		var expected = EField(EField(EIdent("player"), "__super"), "mass");
 
-		Assert.areEqual(expected, accessSuper(e));
+		Assert.areEqual(expected, prependSuper(e));
 	}
 
 	@Test

@@ -6,7 +6,7 @@ import hscript.plus.InterpPlus;
 import hscript.Expr;
 
 @:access(SimpleScriptState)
-@:access(hscript.plus.InterpPlus.accessSuper)
+@:access(hscript.plus.InterpPlus.prependSuper)
 class SimpleScriptStateBase {
 	var state:SimpleScriptState;
 	
@@ -55,8 +55,8 @@ class SimpleScriptStateBase {
 		state.traceRequested = true;
 	}
 
-	public inline function accessSuper(e:Expr) {
-		return state.interp.accessSuper(e);
+	public inline function prependSuper(e:Expr) {
+		return state.interp.prependSuper(e);
 	}
 }
 

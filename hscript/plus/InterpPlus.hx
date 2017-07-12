@@ -5,6 +5,7 @@ import hscript.Expr;
 class InterpPlus extends Interp {
 	public var packageName(default, null):String;
 
+	var resolveScript:String->Dynamic;
 	var _exprDepth:Int;
 
 	public function new() {
@@ -19,9 +20,9 @@ class InterpPlus extends Interp {
 
 	override public function expr(e:Expr):Dynamic {
 		_exprDepth++;
-		e = Tools.map(e, accessThis);
+		e = Tools.map(e, prependThis);
 		if (_exprDepth == 0)
-			e = Tools.map(e, accessSuper);
+			e = Tools.map(e, prependSuper);
 
  		var ret = super.expr(e);
 		
@@ -57,7 +58,31 @@ class InterpPlus extends Interp {
 		return ret;
 	}
 
-	var resolveScript:String->Dynamic;
+	function prependThis(e:Expr) {
+		switch (edef(e)) {
+			case EIdent(id) if (!locals.exists(id) && !variables.exists(id)):
+				var _this = locals.get("this");
+				if (_this != null) {
+					_this = _this.r;
+					e = mk(EField(EIdent("this"), id));
+				}
+			default:
+		}
+		return e;
+	}
+
+	function prependSuper(e:Expr):Expr {
+		switch (edef(e)) {
+			case EField(ident, fieldName):
+				return mk(EField(prependSuper(ident), fieldName), e);
+			case EIdent(name):
+				var object = super.expr(e);
+				if (ClassUtil.superIsClass(object))
+					return mk(EField(e, "__super"), e);
+			default:
+		}
+		return e;
+	}
 
 	function importClass(path:String) {
 		var cls:Dynamic = Type.resolveClass(path);
@@ -132,32 +157,6 @@ class InterpPlus extends Interp {
 			val = Reflect.field(_this, id);
 		
 		return val;
-	}
-
-	function accessThis(e:Expr) {
-		switch (edef(e)) {
-			case EIdent(id) if (!locals.exists(id) && !variables.exists(id)):
-				var _this = locals.get("this");
-				if (_this != null) {
-					_this = _this.r;
-					e = mk(EField(EIdent("this"), id));
-				}
-			default:
-		}
-		return e;
-	}
-
-	function accessSuper(e:Expr):Expr {
-		switch (edef(e)) {
-			case EField(ident, fieldName):
-				return mk(EField(accessSuper(ident), fieldName), e);
-			case EIdent(name):
-				var object = super.expr(e);
-				if (ClassUtil.superIsClass(object))
-					return mk(EField(e, "__super"), e);
-			default:
-		}
-		return e;
 	}
 
 	inline function mk(e, ?expr:Expr) : Expr {
