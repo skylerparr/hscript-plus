@@ -24,12 +24,6 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	}
 
 	@Test
-	public function testClassValue() {
-		script = "Player";
-		Assert.areEqual(Player.__super, returnedValue);
-	}
-
-	@Test
 	public function testExpr() {
 		script = "player.mass";
 		Assert.areEqual(100, returnedValue);
@@ -82,22 +76,6 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	}
 
 	@Test
-	public function testClassValueInFunctionCall() {
-		set("wrap", v -> v);
-		script = "wrap(Player)";
-
-		Assert.areEqual(Player.__super, returnedValue);
-	}
-
-	@Test
-	public function testPrependSuperIdent() {
-		var e = EIdent("player");
-		var expected = EField(e, "__super");
-
-		Assert.areEqual(expected, prependSuper(e));
-	}
-
-	@Test
 	public function testPrependSuperField() {
 		var e = EField(EIdent("player"), "mass");
 		var expected = EField(EField(EIdent("player"), "__super"), "mass");
@@ -119,5 +97,22 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 		new InitializeMemberVariable().speed;
 		";
 		Assert.areEqual(20, returnedValue);
+	}
+
+	@Test
+	public function testCallingSuperClassFunction() {
+		script = " 
+		import Sprite; 
+	
+		class Player extends Sprite { 
+			public function new() { 
+				setMass(10);
+			} 
+		} 
+	
+		var player = new Player();
+		player.mass;
+		"; 
+		Assert.areEqual(10, returnedValue); 
 	}
 }

@@ -8,4 +8,8 @@ class Sprite {
         name = "";
         mass = 100;
     }
+
+    public function setMass(newMass:Int) {
+        mass = newMass;
+    }
 }

@@ -6,30 +6,24 @@ class InterpPlus extends Interp {
 	public var packageName(default, null):String;
 
 	var resolveScript:String->Dynamic;
-	var _exprDepth:Int;
 
 	public function new() {
 		super();
 	}
 
 	override public function execute(e:Expr):Dynamic {
-		_exprDepth = -1;
 		packageName = "";
 		return super.execute(e);
 	}
 
 	override public function expr(e:Expr):Dynamic {
-		_exprDepth++;
 		e = Tools.map(e, prependThis);
-		if (_exprDepth == 0)
-			e = Tools.map(e, prependSuper);
+		e = prependSuper(e);
 
  		var ret = super.expr(e);
 		
-		if (ret != null) {
-			_exprDepth--;
+		if (ret != null)
 			return ret;
-		}
 
 		switch (edef(e)) {
 			case EPackage(path):
@@ -53,8 +47,6 @@ class InterpPlus extends Interp {
 			ret = cls;
 			default:
 		}
-
-		_exprDepth--;
 		return ret;
 	}
 
@@ -74,12 +66,14 @@ class InterpPlus extends Interp {
 	function prependSuper(e:Expr):Expr {
 		switch (edef(e)) {
 			case EField(ident, fieldName):
-				return mk(EField(prependSuper(ident), fieldName), e);
-			case EIdent(name):
-				var object = super.expr(e);
-				if (ClassUtil.superIsClass(object))
-					return mk(EField(e, "__super"), e);
+				var object = super.expr(ident);
+				if (ClassUtil.superHasField(object, fieldName))
+					e = mk(EField(EField(ident, "__super"), fieldName), e);
+			
+			case EBlock(_) | EFunction(_, _, _, _):
+			// do not Tools.map the cases above like the default case or bugs
 			default:
+				e = Tools.map(e, prependSuper);
 		}
 		return e;
 	}

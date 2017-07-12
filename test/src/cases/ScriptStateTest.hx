@@ -66,7 +66,7 @@ class ScriptStateTest {
 
             public function new(mass)
                 this.mass = mass;
-        }        
+        }
         ';
         var object = returnedValue;
         Assert.areEqual(10, object.mass);

@@ -78,6 +78,7 @@ class ClassUtilTest {
     public function testSuperHasField() {
         var sprite = { __super: new Sprite() };
         Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
+        Assert.isTrue(ClassUtil.superHasField(sprite, "setMass"));
     }
 
     @Test
