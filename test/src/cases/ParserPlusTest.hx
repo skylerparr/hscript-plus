@@ -22,7 +22,7 @@ class ParserPlusTest {
 		parser = new ParserPlus();
 	}
 
-	inline function getExpr(?expr:Expr) {
+	inline function getExpr(?expr:Expr):Expr {
 		expr = expr == null ? ast : expr;
 		return parser.expr(expr);
 	}
@@ -41,7 +41,7 @@ class ParserPlusTest {
 	@Test
 	public function testBaseClassName() {
 		script = 'class Sprite extends Object {}';
-		
+
 		switch (getExpr()) {
 			case EClass(_, _, baseClass):
 				Assert.areEqual("Object", baseClass);
@@ -97,12 +97,8 @@ class ParserPlusTest {
 		packageNameIs("test.cases");
 	}
 
-	function packageNameIs(name:String) {
-		switch (getExpr()) {
-			case EPackage(path):
-				Assert.areEqual(name, path);
-			default:
-		}
+	inline function packageNameIs(name:String) {
+		Assert.isTrue(getExpr().match(EPackage(name)));
 	}
 
 	@Test
@@ -114,9 +110,6 @@ class ParserPlusTest {
 		';
 		var expected = EBlock([EImport(packages[0]), EImport(packages[1])]);
 
-		switch (getExpr()) {
-			case expected:
-			default: Assert.fail('Expected $expected but was [$ast]');
-		}
+		Assert.isTrue(getExpr().match(expected));
 	}
 }
