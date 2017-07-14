@@ -5,10 +5,18 @@ class ClassUtil {
 		if (args == null) args = [];
 
 		var _this:Dynamic = Reflect.copy(baseClass);
-		var superClass:Dynamic = baseClass.__super;
+		var superClass:Dynamic = null;
+		if (Reflect.hasField(baseClass, "__super"))
+			superClass = baseClass.__super;
 
-		if (isClass(superClass))
+		if (isClass(superClass)) {
 			_this.__super = Type.createInstance(superClass, args);
+		}
+		else if (superClass != null) {
+			var superObject = create(superClass, args);
+			if (isClass(superObject.__super))
+				_this.__super = superObject.__super;
+		}
 		
 		for (fieldName in Reflect.fields(_this)) {
 			var field = Reflect.field(_this, fieldName);

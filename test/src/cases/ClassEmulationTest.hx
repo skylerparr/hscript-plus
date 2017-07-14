@@ -100,19 +100,89 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	}
 
 	@Test
-	public function testCallingSuperClassFunction() {
+	public function testHaxeClassInheritance() {
 		script = " 
 		import Sprite; 
 	
-		class Player extends Sprite { 
-			public function new() { 
-				setMass(10);
-			} 
-		} 
+		class Player extends Sprite {}
 	
-		var player = new Player();
+		player = new Player();
+		player.setMass(10);
 		player.mass;
 		"; 
 		Assert.areEqual(10, returnedValue); 
+	}
+
+	@Test
+	public function testInheritance() {
+		script = "
+		class GameObject {
+			public var exists:Bool = true;
+
+			public function destroy() {
+				exists = false;
+			}
+		}
+
+		class PhysicalObject extends GameObject {}
+		
+		object = new PhysicalObject();
+		object.destroy();
+		";
+
+		var object = get("object");
+		Assert.isFalse(object.exists);
+	}
+
+	@Test
+	public function testMultipleInheritance() {
+		script = "
+		class GameObject {
+			public var exists:Bool = true;
+
+			public function destroy() {
+				exists = false;
+			}
+		}
+
+		class PhysicalObject extends GameObject {
+			public var mass:Float = 1;
+
+			public function setMass(newMass:Float) {
+				mass = newMass;
+			}
+		}
+
+		class SpriteObject extends PhysicalObject {}
+
+		sprite = new SpriteObject();
+		sprite.setMass(25);
+		sprite.destroy();
+		";
+
+		var sprite = get("sprite");
+		Assert.areEqual(25, sprite.mass);
+		Assert.isFalse(sprite.exists);
+	}
+
+	@Test
+	public function testHaxeClassMultipleInheritance() {
+		script = "
+		import Sprite;
+
+		class Rock extends Sprite {
+			public var material:Int = 89741;
+		}
+		class Stone extends Rock {}
+		class Hammer extends Stone {}
+		
+		hammer = new Hammer();
+		hammer.setMass(5);
+		hammer.mass;
+		";
+
+		var hammer = get("hammer");
+		Assert.areEqual(5, returnedValue);
+		Assert.areEqual(89741, hammer.material);
 	}
 }

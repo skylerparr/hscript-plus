@@ -64,6 +64,30 @@
             "args": ["run", "munit", "test", "-coverage", "-cpp", "-debug"],
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Web",
+            "args": ["run", "munit", "test", "-coverage", "-as3", "-js"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Web Debug Mode",
+            "args": ["run", "munit", "test", "-coverage", "-as3", "-js", "-debug"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Neko & C++",
+            "args": ["run", "munit", "test", "-coverage", "-cpp", "-neko"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
+        },
+        {
+            "taskName": "Test Neko & C++ Debug Mode",
+            "args": ["run", "munit", "test", "-coverage", "-cpp", "-neko", "-debug"],
+            "suppressTaskName": true,
+            "problemMatcher": "$haxe"
         }
     ]
 }
