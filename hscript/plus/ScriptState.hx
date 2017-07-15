@@ -18,12 +18,6 @@ class ScriptState {
 	public var getScriptPathsFromDirectory:String->Array<String> #if sys = sys.FileSystem.readDirectory #end;
 
 	public var scriptDirectory(default, set):String;
-	function set_scriptDirectory(newDirectory:String) {
-		if (!newDirectory.endsWith("/"))
-			newDirectory += "/";
-		loadScriptFromDirectory(scriptDirectory = newDirectory);
-		return newDirectory;
-	}
 
 	/**
 	 *  If set to `true`, rethrow errors
@@ -83,32 +77,14 @@ class ScriptState {
 		}
 		this.path = path;
 		var script = getFileContent(path);
-		return execute(script);
-	}
-	
-	public inline function executeString(script:String):Dynamic {
-		return execute(script);
+		return executeString(script);
 	}
 
-	function execute(script:String):Dynamic {
+	public function executeString(script:String):Dynamic {
 		ast = parseScript(script);
-		return executeProgram(ast);
+		return execute(ast);
 	}
-	
-	function executeProgram(ast:Expr):Dynamic {
-		try {
-			_interp.execute(ast);
-			var main = get("main");
-			if (main != null && Reflect.isFunction(main))
-				return main();	
-		}
-		catch (e:Dynamic) {
-			error(e + CallStack.toString(CallStack.exceptionStack()));
-			trace('Debug AST: $ast');
-		}
-		return null;
-	}
-	
+
 	function parseScript(script:String):Null<Expr> {
 		try {
 			return _parser.parseString(script, path);
@@ -122,11 +98,34 @@ class ScriptState {
 			return null;
 		}
 	}
+	
+	function execute(ast:Expr):Dynamic {
+		try {
+			var val = _interp.execute(ast);
+			var main = get("main");
+			
+			if (main != null && Reflect.isFunction(main))
+				return main();
+			else return val;
+		}
+		catch (e:Dynamic) {
+			error(e + CallStack.toString(CallStack.exceptionStack()));
+			trace('Debug AST: $ast');
+		}
+		return null;
+	}
 
 	function error(e:Dynamic) {
 		if (rethrowError)
 			throw e;
 		else trace(e);
+	}
+
+	function set_scriptDirectory(newDirectory:String) {
+		if (!newDirectory.endsWith("/"))
+			newDirectory += "/";
+		loadScriptFromDirectory(scriptDirectory = newDirectory);
+		return newDirectory;
 	}
 
 	/**
