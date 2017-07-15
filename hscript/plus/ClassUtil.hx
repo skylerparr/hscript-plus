@@ -6,16 +6,16 @@ class ClassUtil {
 
 		var _this:Dynamic = Reflect.copy(baseClass);
 		var superClass:Dynamic = null;
-		if (Reflect.hasField(baseClass, "__super"))
-			superClass = baseClass.__super;
+		if (Reflect.hasField(baseClass, "__super__"))
+			superClass = baseClass.__super__;
 
 		if (isClass(superClass)) {
-			_this.__super = Type.createInstance(superClass, args);
+			_this.__super__ = Type.createInstance(superClass, args);
 		}
 		else if (superClass != null) {
 			var superObject = create(superClass, args);
-			if (isClass(superObject.__super))
-				_this.__super = superObject.__super;
+			if (isClass(superObject.__super__))
+				_this.__super__ = superObject.__super__;
 		}
 		
 		for (fieldName in Reflect.fields(_this)) {
@@ -46,7 +46,7 @@ class ClassUtil {
 	}
 
 	public static inline function superHasField(object:Dynamic, fieldName:String) {
-		return superIsClass(object) && hasField(object.__super, fieldName);
+		return superIsClass(object) && hasField(object.__super__, fieldName);
 	}
 
 	static function hasField(object:Dynamic, fieldName:String) {
@@ -54,11 +54,11 @@ class ClassUtil {
 	}
 
 	public static inline function superIsClass(object:Dynamic) {
-		return isStructure(object) && isClass(object.__super);
+		return isStructure(object) && isClass(object.__super__);
 	}
 
 	static inline function isStructure(object:Dynamic) {
-		return object != null && Reflect.hasField(object, "__super");
+		return object != null && Reflect.hasField(object, "__super__");
 	}
 
 	static inline function isClass(object:Dynamic) {
@@ -79,7 +79,7 @@ class ClassUtil {
 		}
 
 		newClass.className = className != null ? className : "";
-		newClass.__super = baseClass;
+		newClass.__super__ = baseClass;
 
 		for (fieldName in Reflect.fields(body))
 				Reflect.setField(newClass, fieldName, Reflect.field(body, fieldName));

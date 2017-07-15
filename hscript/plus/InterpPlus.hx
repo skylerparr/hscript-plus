@@ -68,7 +68,7 @@ class InterpPlus extends Interp {
 			case EField(ident, fieldName):
 				var object = super.expr(ident);
 				if (ClassUtil.superHasField(object, fieldName))
-					e = mk(EField(EField(ident, "__super"), fieldName), e);
+					e = mk(EField(EField(ident, "__super__"), fieldName), e);
 			
 			case EBlock(_) | EFunction(_, _, _, _):
 			// do not Tools.map the cases above like the default case or bugs

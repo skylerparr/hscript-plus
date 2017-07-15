@@ -29,13 +29,13 @@ class ClassUtilTest {
     @Test
     public function testSuperObject() {
         var player = ClassUtil.create(Player);
-        Assert.isNotNull(player.__super);
+        Assert.isNotNull(player.__super__);
     }
     
     @Test
     public function testFieldOfSuperObject() {
         var player = ClassUtil.create(Player);
-        Assert.areEqual("", player.__super.name);
+        Assert.areEqual("", player.__super__.name);
     }
 
     @Test
@@ -50,12 +50,12 @@ class ClassUtilTest {
         var Controller = {};
         var Keyboard = ClassUtil.createClass(Controller);
         
-        Assert.areEqual(Controller, Keyboard.__super);
+        Assert.areEqual(Controller, Keyboard.__super__);
     }
 
     @Test
     public function testRealSuperClass() {
-        Assert.areEqual(Sprite, Player.__super);
+        Assert.areEqual(Sprite, Player.__super__);
     }
 
     @Test
@@ -76,14 +76,14 @@ class ClassUtilTest {
 
     @Test
     public function testSuperHasField() {
-        var sprite = { __super: new Sprite() };
+        var sprite = { __super__: new Sprite() };
         Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
         Assert.isTrue(ClassUtil.superHasField(sprite, "setMass"));
     }
 
     @Test
     public function testSuperIsClass() {
-        var sprite = { __super: new Sprite() };
+        var sprite = { __super__: new Sprite() };
         Assert.isTrue(ClassUtil.superIsClass(sprite));
     }
 

@@ -32,35 +32,35 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	@Test
 	public function testAssignment() {
 		script = 'player.mass = 50';
-		Assert.areEqual(50, player.__super.mass);
+		Assert.areEqual(50, player.__super__.mass);
 	}
 
 	@Test
 	public function testIncrement() {
 		script = 'player.mass++';
 
-		Assert.areEqual(101, player.__super.mass);
+		Assert.areEqual(101, player.__super__.mass);
 	}
 
 	@Test
 	public function testDecrement() {
 		script = 'player.mass--';
 
-		Assert.areEqual(99, player.__super.mass);
+		Assert.areEqual(99, player.__super__.mass);
 	}
 
 	@Test
 	public function testPlusEqual() {
 		script = 'player.mass += 50';
 
-		Assert.areEqual(150, player.__super.mass);
+		Assert.areEqual(150, player.__super__.mass);
 	}
 
 	@Test
 	public function testMinusEqual() {
 		script = 'player.mass -= 50';
 
-		Assert.areEqual(50, player.__super.mass);
+		Assert.areEqual(50, player.__super__.mass);
 	}
 
 	@Test
@@ -78,7 +78,7 @@ class ClassEmulationTest extends SimpleScriptStateBase {
 	@Test
 	public function testPrependSuperField() {
 		var e = EField(EIdent("player"), "mass");
-		var expected = EField(EField(EIdent("player"), "__super"), "mass");
+		var expected = EField(EField(EIdent("player"), "__super__"), "mass");
 
 		Assert.areEqual(expected, prependSuper(e));
 	}
