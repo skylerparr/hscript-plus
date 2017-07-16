@@ -42,7 +42,7 @@ class ClassUtilTest {
     public function testClassName() {
         var className = "Sprite";
         var Class = ClassUtil.createClass(className);
-        Assert.areEqual(className, Class.className);
+        Assert.areEqual(className, Class.__name__);
     }
 
     @Test
@@ -68,7 +68,7 @@ class ClassUtilTest {
 
     @Test
     public function testStaticFieldsRemoved() {
-        var Entity:Dynamic = { pop:0, __statics:["pop"] };
+        var Entity:Dynamic = { pop:0, __statics__:["pop"] };
         var Enemy:Dynamic = ClassUtil.createClass(Entity);
 
         Assert.isNull(Enemy.pop);
@@ -84,12 +84,12 @@ class ClassUtilTest {
     @Test
     public function testSuperIsClass() {
         var sprite = { __super__: new Sprite() };
-        Assert.isTrue(ClassUtil.superIsClass(sprite));
+        Assert.isTrue(ClassUtil.superIsHaxeClass(sprite));
     }
 
     @Test
 	public function testIsStructure() {
-        Assert.isTrue(ClassUtil.isStructure(Player));
-		Assert.isFalse(ClassUtil.isStructure(Sprite));
+        Assert.isTrue(ClassUtil.isDynamic(Player));
+		Assert.isFalse(ClassUtil.isDynamic(Sprite));
 	}
 }

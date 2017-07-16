@@ -32,7 +32,7 @@ class InterpPlus extends Interp {
 				importClass(path);
 			case EClass(name, e, baseClass):
 				var baseClassObj = baseClass == null ? null : variables.get(baseClass);
-				var cls = ClassUtil.createClass(name, baseClassObj, { __statics:new Array<String>() });
+				var cls = ClassUtil.createClass(name, baseClassObj, { __statics__:new Array<String>() });
 
 				variables.set(name, cls);
 
@@ -71,7 +71,7 @@ class InterpPlus extends Interp {
 					e = mk(EField(EField(ident, "__super__"), fieldName), e);
 			
 			case EBlock(_) | EFunction(_, _, _, _):
-			// do not Tools.map the cases above like the default case or bugs
+			// don't Tools.map(e, prependSuper) the cases or there will be bugs
 			default:
 				e = Tools.map(e, prependSuper);
 		}
@@ -106,7 +106,7 @@ class InterpPlus extends Interp {
 	function setClassField(object:Dynamic, name:String, e:Expr, access:Array<Access>) {
 		Reflect.setField(object, name, expr(e));
 		if (isStatic(access))
-			object.__statics.push(name);
+			object.__statics__.push(name);
 	}
 
 	inline function isStatic(access:Array<Access>) {
