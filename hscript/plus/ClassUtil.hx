@@ -1,48 +1,10 @@
 package hscript.plus;
 
+import hscript.plus.core.ObjectCreator;
+
 class ClassUtil {
 	public static function create(baseClass:Dynamic, ?args:Array<Dynamic>):Dynamic {
-		if (args == null) args = [];
-
-		var _this:Dynamic = Reflect.copy(baseClass);
-		var superClass:Dynamic = null;
-		if (Reflect.hasField(baseClass, "__super__"))
-			superClass = baseClass.__super__;
-
-		if (isClass(superClass)) {
-			_this.__super__ = Type.createInstance(superClass, args);
-		}
-		else if (superClass != null) {
-			var superObject = create(superClass, args);
-			if (isClass(superObject.__super__))
-				_this.__super__ = superObject.__super__;
-		}
-		
-		for (fieldName in Reflect.fields(_this)) {
-			var field = Reflect.field(_this, fieldName);
-			if (!Reflect.isFunction(field)) continue;
-			
-			// call `new()`
-			if (fieldName == "new") {
-				Reflect.callMethod(_this, field, [_this].concat(args));
-				Reflect.deleteField(_this, "new");
-				continue;
-			}
-
-			function method(?args:Array<Dynamic>):Dynamic {
-				try {
-					return Reflect.callMethod(_this, field, [_this].concat(args));
-				}
-				catch (e:Dynamic) {
-					trace('Called from $fieldName: $e');
-					return null;
-				}
-			}
-
-			Reflect.setField(_this, fieldName, Reflect.makeVarArgs(method));
-		}
-		
-		return _this;
+		return ObjectCreator.create(baseClass, args);
 	}
 
 	public static inline function superHasField(object:Dynamic, fieldName:String) {
