@@ -2,6 +2,6 @@ version=2.1.2
 src=src
 bin=bin
 report=bin/report
-hxml=test.hxml
+hxml=build.hxml
 classPaths=..
 coveragePackages=hscript.plus

@@ -1,6 +1,9 @@
 {
     "version": "0.1.0",
     "command": "haxelib",
+    "options": {
+        "cwd": "${workspaceRoot}/test"
+    },
     "tasks": [
         {
             "taskName": "Test All Targets",
