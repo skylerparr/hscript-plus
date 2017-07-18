@@ -1,7 +1,6 @@
-package cases;
+package hscript.plus;
 
 import massive.munit.Assert;
-import hscript.plus.ScriptState;
 
 class ScriptStateTest {
     var state:ScriptState;

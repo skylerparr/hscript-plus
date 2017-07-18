@@ -1,10 +1,9 @@
-package cases;
+package hscript.plus;
 
 import massive.munit.Assert;
-import hscript.plus.ClassUtil;
 import hscript.Expr;
 
-class ClassEmulationTest extends SimpleScriptStateBase {
+class ClassEmulationTest_ extends SimpleScriptStateBase {
 	var Player:Dynamic;
 	var player:Dynamic;
 

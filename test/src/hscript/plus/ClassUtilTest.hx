@@ -1,7 +1,6 @@
-package cases;
+package hscript.plus;
 
 import massive.munit.Assert;
-import hscript.plus.ClassUtil;
 
 @:access(hscript.plus.ClassUtil)
 class ClassUtilTest {

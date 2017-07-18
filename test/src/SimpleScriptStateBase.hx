@@ -1,9 +1,9 @@
 package;
 
 import massive.munit.Assert;
+import hscript.Expr;
 import hscript.plus.ParserPlus;
 import hscript.plus.InterpPlus;
-import hscript.Expr;
 
 @:access(SimpleScriptState)
 @:access(hscript.plus.InterpPlus.prependSuper)

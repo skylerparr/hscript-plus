@@ -1,8 +1,7 @@
-package cases;
+package hscript.plus;
 
 import massive.munit.Assert;
 import hscript.Expr;
-import hscript.plus.ParserPlus;
 
 @:access(hscript.plus.ParserPlus.expr)
 class ParserPlusTest {
@@ -93,8 +92,8 @@ class ParserPlusTest {
 		script = 'package test;';
 		packageNameIs("test");	
 
-		script = 'package test.cases;';
-		packageNameIs("test.cases");
+		script = 'package test.hscript.plus;';
+		packageNameIs("test.hscript.plus");
 	}
 
 	inline function packageNameIs(name:String) {

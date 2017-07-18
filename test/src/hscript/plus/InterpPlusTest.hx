@@ -1,9 +1,8 @@
-package cases;
+package hscript.plus;
 
 import massive.munit.Assert;
-using hscript.plus.ClassUtil;
 
-class InterpPlusTest extends SimpleScriptStateBase {
+class InterpPlusTest extends ClassEmulationTest_ {
 	@Test
 	public function testNotNull() {
 		script = 'class Object {}';
