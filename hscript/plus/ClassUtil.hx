@@ -24,7 +24,7 @@ class ClassUtil {
 		return object != null && Reflect.hasField(object, "__super__");
 	}
 
-	static inline function isHaxeClass(object:Dynamic) {
+	public static inline function isHaxeClass(object:Dynamic) {
 		try {
 			return Type.getClass(object) != null || Type.getClassName(object) != null;
 		}

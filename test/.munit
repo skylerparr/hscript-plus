@@ -4,4 +4,4 @@ bin=bin
 report=bin/report
 hxml=build.hxml
 classPaths=..
-coveragePackages=hscript.plus
+coveragePackages=hscript.plus,hscript.plus.core

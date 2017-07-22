@@ -1,6 +1,8 @@
 import massive.munit.TestSuite;
 
 import hscript.plus.ClassUtilTest;
+import hscript.plus.core.ClassCreatorTest;
+import hscript.plus.core.ObjectCreatorTest;
 import hscript.plus.InterpPlusTest;
 import hscript.plus.ParserPlusTest;
 import hscript.plus.ScriptStateTest;
@@ -18,6 +20,8 @@ class TestSuite extends massive.munit.TestSuite
 		super();
 
 		add(hscript.plus.ClassUtilTest);
+		add(hscript.plus.core.ClassCreatorTest);
+		add(hscript.plus.core.ObjectCreatorTest);
 		add(hscript.plus.InterpPlusTest);
 		add(hscript.plus.ParserPlusTest);
 		add(hscript.plus.ScriptStateTest);
