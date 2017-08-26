@@ -8,13 +8,13 @@
         {
             "taskName": "Test All Targets",
             "args": ["run", "munit", "test", "-coverage"],
-            "isBuildCommand": true,
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
         },
         {
             "taskName": "Test Neko",
             "args": ["run", "munit", "test", "-coverage", "-neko"],
+            "isBuildCommand": true,
             "suppressTaskName": true,
             "problemMatcher": "$haxe"
         },

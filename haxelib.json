@@ -6,8 +6,5 @@
 	"description": "hscript with classes",
 	"version": "0.1.0",
 	"releasenote": "Uh... not done yet!",
-	"contributors": ["DleanJeans"],
-	"dependencies": { 
-		"hscript": ""
-	}
+	"contributors": ["DleanJeans"]
 }

@@ -355,7 +355,7 @@ class Interp {
 				return ~expr(e);
 				#end
 			default:
-				error(EInvalidOp(op));
+				return error(EInvalidOp(op));
 			}
 		case ECall(e,params):
 			var args = new Array();
