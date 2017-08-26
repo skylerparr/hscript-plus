@@ -1,5 +1,6 @@
 package hscript.plus;
 
+import hscript.plus.core.ClassImporter;
 import haxe.CallStack;
 import hscript.Expr;
 
@@ -50,11 +51,12 @@ class ScriptState {
 		_parser = new ParserPlus();
 		_parser.allowTypes = true;
 		
-		_interp = new InterpPlus();
-		_interp.resolveScript = resolveScript;
+		var classImporter = new ClassImporter(resolveDynamicClass);
+
+		_interp = new InterpPlus(classImporter);
 	}
 
-	function resolveScript(packageName:String):Dynamic {
+	function resolveDynamicClass(packageName:String):Dynamic {
 		var scriptPath = _scriptPathMap.get(packageName);
 		executeFile(scriptPath);
 		var className = packageName.split(".").pop();

@@ -12,19 +12,28 @@ class ClassUtil {
 		return ObjectCreator.create(baseClass, args);
 	}
 
+	public static inline function classNameIsOfHaxeClass(className:String) {
+		var classType = resolveHaxeClass(className);
+		return isEitherHaxeClassOrInstance(classType);
+	}
+
+	static function resolveHaxeClass(className:String) {
+		return Type.resolveClass(className);
+	}
+
 	public static inline function superHasField(object:Dynamic, fieldName:String) {
 		return superIsHaxeClass(object) && hasField(object.__super__, fieldName);
 	}
 
 	static inline function superIsHaxeClass(object:Dynamic) {
-		return isDynamic(object) && isHaxeClass(object.__super__);
+		return isDynamic(object) && isEitherHaxeClassOrInstance(object.__super__);
 	}
 
 	static inline function isDynamic(object:Dynamic) {
 		return object != null && Reflect.hasField(object, "__super__");
 	}
 
-	public static inline function isHaxeClass(object:Dynamic) {
+	public static inline function isEitherHaxeClassOrInstance(object:Dynamic) {
 		try {
 			return Type.getClass(object) != null || Type.getClassName(object) != null;
 		}

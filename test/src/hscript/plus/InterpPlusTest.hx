@@ -4,6 +4,16 @@ import massive.munit.Assert;
 
 class InterpPlusTest extends ClassEmulationTest_ {
 	@Test
+	@TestDebug
+	public function testCreateNormalObject() {
+		script = "
+		import Sprite;
+		trace(Sprite);
+		new Sprite()";
+		Assert.isType(returnedValue, Sprite);
+	}
+
+	@Test
 	public function testNotNull() {
 		script = 'class Object {}';
 
@@ -30,13 +40,6 @@ class InterpPlusTest extends ClassEmulationTest_ {
 
 		var main = returnedValue;
 		main();
-	}
-
-	@Test
-	public function testPackageName() {
-		script = 'package test;';
-
-		Assert.areEqual("test", packageName);
 	}
 
 	@Test
@@ -157,5 +160,21 @@ class InterpPlusTest extends ClassEmulationTest_ {
 		FunctionReturnValue.getNum();
 		';
 		Assert.areEqual(10, returnedValue);
+	}
+
+	@Test
+	@Ignore("Move this to the nonexistent ClassImporterTest class")
+	//@:access(hscript.plus.InterpPlus.formatImportExceptionMessage)
+	public function importInvalidClass() {
+		var errorMessage = "";
+		try {
+			script = "
+			import InvalidClass;
+			";
+		}
+		catch (e:String) {
+			errorMessage = e;
+		}
+		//Assert.areEqual(interp.formatImportExceptionMessage("InvalidClass"), errorMessage);
 	}
 }

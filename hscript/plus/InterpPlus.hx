@@ -1,19 +1,22 @@
 package hscript.plus;
 
 import hscript.Expr;
+import hscript.plus.core.ClassImporter;
+import hscript.plus.core.EClassInterp;
+import hscript.plus.core.Cnew;
 
 class InterpPlus extends Interp {
-	public var packageName(default, null):String;
+	public static var NULL_DYNAMIC = {};	
 
-	var resolveScript:String->Dynamic;
+	var classImporter:ClassImporter;
+	var eclassInterp:EClassInterp;
 
-	public function new() {
+	public function new(importer:ClassImporter) {
 		super();
-	}
+		classImporter = importer;
+		classImporter.setInterp(this);
 
-	override public function execute(e:Expr):Dynamic {
-		packageName = "";
-		return super.execute(e);
+		eclassInterp = new EClassInterp(this);
 	}
 
 	override public function expr(e:Expr):Dynamic {
@@ -24,38 +27,17 @@ class InterpPlus extends Interp {
 		
 		if (ret != null)
 			return ret;
-
-		switch (edef(e)) {
-			case EPackage(path):
-				packageName = path;
-			case EImport(path):
-				importClass(path);
-			case EClass(name, e, baseClass):
-				var baseClassObj = baseClass == null ? null : variables.get(baseClass);
-				var cls = ClassUtil.createClass(name, baseClassObj, { __statics__:new Array<String>() });
-
-				variables.set(name, cls);
-
-				switch (edef(e)) {
-					case EFunction(_, _), EVar(_):
-						addClassFields(cls, e);
-					case EBlock(exprList):
-						for (e in exprList)
-							addClassFields(cls, e);
-					default:
-				}
-			ret = cls;
-			default:
-		}
-		return ret;
+		
+		classImporter.importFromExpr(e);
+		return eclassInterp.createClassFromExpr(e);
 	}
 
 	function prependThis(e:Expr) {
 		switch (edef(e)) {
 			case EIdent(id) if (!locals.exists(id) && !variables.exists(id)):
-				var _this = locals.get("this");
-				if (_this != null) {
-					_this = _this.r;
+				var thisObject = locals.get("this");
+				if (thisObject != null) {
+					thisObject = thisObject.r;
 					e = mk(EField(EIdent("this"), id));
 				}
 			default:
@@ -78,79 +60,16 @@ class InterpPlus extends Interp {
 		return e;
 	}
 
-	function importClass(path:String) {
-		var cls:Dynamic = Type.resolveClass(path);
-
-		if (cls == null)
-			cls = resolveScript(path);
-			
-		if (cls == null)
-			throw 'importClass: $path not found';
-		
-		var className = path.split(".").pop();
-		variables.set(className, cls);
+	override function cnew(className:String, args:Array<Dynamic>):Dynamic {
+		return Cnew.newClass(superCnew, superResolve, className, args);
 	}
 
-	function addClassFields(cls:Dynamic, e:Expr) {
-		switch (edef(e)) {
-			case EFunction(args, _, name, _, access):
-				if (!isStatic(access))
-					args.unshift({ name:"this" });
-				setClassField(cls, name, e, access);
-			case EVar(name, _, e, access):
-				setClassField(cls, name, e, access);
-			default:
-		}
+	function superCnew(className:String, args:Array<Dynamic>) {
+		return super.cnew(className, args);
 	}
 
-	function setClassField(object:Dynamic, name:String, e:Expr, access:Array<Access>) {
-		Reflect.setField(object, name, expr(e));
-		if (isStatic(access))
-			object.__statics__.push(name);
-	}
-
-	inline function isStatic(access:Array<Access>) {
-		return access != null && access.indexOf(AStatic) > -1;
-	}
-
-	override function cnew(cl:String, args:Array<Dynamic>):Dynamic {
-		try {
-			var c = super.cnew(cl, args);
-			if (c == null)
-				c = resolveAndCreate(cl, args);
-			return c;
-		}
-		catch (e:Dynamic) {
-			return resolveAndCreate(cl, args);
-		}
-	}
-
-	function resolveAndCreate(cl:String, args:Array<Dynamic>) {
-		var c = resolve(cl);
-		return ClassUtil.create(c, args);
-	}
-
-	override function resolve(id:String):Dynamic {
-		var val = resolveInThis(id);
-		
-		return
-		if (val != null)
-			val;
-		else super.resolve(id);
-	}
-	
-	function resolveInThis(id:String) {
-		var _this = locals.get("this");
-		var val = null;
-		
-		if (_this != null)
-			_this = _this.r;
-		else return val;
-		
-		if (!locals.exists(id) && Reflect.hasField(_this, id))
-			val = Reflect.field(_this, id);
-		
-		return val;
+	function superResolve(className:String) {
+		return super.resolve(className);
 	}
 
 	inline function mk(e, ?expr:Expr) : Expr {

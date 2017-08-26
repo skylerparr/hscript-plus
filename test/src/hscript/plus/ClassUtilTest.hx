@@ -34,8 +34,8 @@ class ClassUtilTest {
 	}
 
     @Test
-    public function testIsHaxeClass() {
-        Assert.isTrue(ClassUtil.isHaxeClass(Sprite));
-        Assert.isFalse(ClassUtil.isHaxeClass(Player));
+    public function testIsEitherHaxeClassOrInstance() {
+        Assert.isTrue(ClassUtil.isEitherHaxeClassOrInstance(Sprite));
+        Assert.isFalse(ClassUtil.isEitherHaxeClassOrInstance(Player));
     }
 }

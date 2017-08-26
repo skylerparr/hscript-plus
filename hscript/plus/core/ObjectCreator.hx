@@ -43,7 +43,7 @@ class ObjectCreator {
 	function createSuperClassObject() {
 		if (superClass == null) return;
 
-		if (ClassUtil.isHaxeClass(superClass))
+		if (ClassUtil.isEitherHaxeClassOrInstance(superClass))
 			createHaxeObject();
 		else createSuperClassObjectRecursively();
 	}
@@ -54,7 +54,7 @@ class ObjectCreator {
 
 	function createSuperClassObjectRecursively() {
 		var superClassObject = create(superClass, args);
-		if (ClassUtil.isHaxeClass(superClassObject.__super__))
+		if (ClassUtil.isEitherHaxeClassOrInstance(superClassObject.__super__))
 			scriptObject.__super__ = superClassObject.__super__;
 	}
 

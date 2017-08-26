@@ -3,7 +3,7 @@ package hscript.plus;
 import massive.munit.Assert;
 import hscript.Expr;
 
-class ClassEmulationTest_ extends SimpleScriptStateBase {
+class ClassEmulationTest_ extends TestScriptState {
 	var Player:Dynamic;
 	var player:Dynamic;
 
