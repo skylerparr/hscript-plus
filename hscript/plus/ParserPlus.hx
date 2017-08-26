@@ -56,6 +56,7 @@ class ParserPlus extends Parser {
 				var path = parsePath();
 				mk(EImport(path));
 			case "class":
+			// example: class ClassName
 				var tk = token();
 				var name = null;
 				
@@ -66,6 +67,7 @@ class ParserPlus extends Parser {
 
 				var baseClass = null;
 				tk = token();
+				// optional - example: extends BaseClass 
 				switch (tk) {
 					case TId(id) if (id == "extends"):
 						tk = token();
@@ -91,6 +93,9 @@ class ParserPlus extends Parser {
 		}
 	}
 
+	/**
+	 *  @return You will get "something.like.this"
+	 */
 	function parsePath():String {
 		var tk = token();
 		switch (tk) {
