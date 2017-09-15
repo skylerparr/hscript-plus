@@ -1,48 +1,27 @@
 package hscript.plus;
 
-import hscript.plus.core.ClassCreator;
-import hscript.plus.core.ObjectCreator;
+import hscript.plus.core.DynamicCreator;
 
 class ClassUtil {
-	public static function createClass(?className:String, ?baseClass:Dynamic, ?body:Dynamic):Dynamic {
-		return ClassCreator.create(className, baseClass, body);
+	public static var create(default, null) = DynamicCreator.create;
+
+	public static function getFirstInHierachy(object:Dynamic, fieldName:String) {
+		var value = Reflect.field(object, fieldName);
+		var objectSuper = object.super;
+
+		var fieldNotFound = value == null;
+		var objectHasSuper = objectSuper != null;
+
+		if (fieldNotFound && objectHasSuper)
+			return getFirstInHierachy(objectSuper, fieldName);
+		return value;
 	}
 
-	public static function create(baseClass:Dynamic, ?args:Array<Dynamic>):Dynamic {
-		return ObjectCreator.create(baseClass, args);
+	public static inline function isHaxeClassName(className:String) {
+		return Type.resolveClass(className) != null;
 	}
 
-	public static inline function classNameIsOfHaxeClass(className:String) {
-		var classType = resolveHaxeClass(className);
-		return isEitherHaxeClassOrInstance(classType);
-	}
-
-	static function resolveHaxeClass(className:String) {
-		return Type.resolveClass(className);
-	}
-
-	public static inline function superHasField(object:Dynamic, fieldName:String) {
-		return superIsHaxeClass(object) && hasField(object.__super__, fieldName);
-	}
-
-	static inline function superIsHaxeClass(object:Dynamic) {
-		return isDynamic(object) && isEitherHaxeClassOrInstance(object.__super__);
-	}
-
-	static inline function isDynamic(object:Dynamic) {
-		return object != null && Reflect.hasField(object, "__super__");
-	}
-
-	public static inline function isEitherHaxeClassOrInstance(object:Dynamic) {
-		try {
-			return Type.getClass(object) != null || Type.getClassName(object) != null;
-		}
-		catch (e:Dynamic) {
-			return false;
-		}
-	}
-
-	static function hasField(object:Dynamic, fieldName:String) {
-		return Type.getInstanceFields(Type.getClass(object)).indexOf(fieldName) > -1;
+	public static inline function isDynamicObject(object:Dynamic) {
+		return object != null && Reflect.hasField(object, "super");
 	}
 }

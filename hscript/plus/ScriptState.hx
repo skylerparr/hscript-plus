@@ -51,12 +51,11 @@ class ScriptState {
 		_parser = new ParserPlus();
 		_parser.allowTypes = true;
 		
-		var classImporter = new ClassImporter(resolveDynamicClass);
-
-		_interp = new InterpPlus(classImporter);
+		_interp = new InterpPlus();
+		_interp.setResolveImportFunction(resolveImport);
 	}
 
-	function resolveDynamicClass(packageName:String):Dynamic {
+	function resolveImport(packageName:String):Dynamic {
 		var scriptPath = _scriptPathMap.get(packageName);
 		executeFile(scriptPath);
 		var className = packageName.split(".").pop();

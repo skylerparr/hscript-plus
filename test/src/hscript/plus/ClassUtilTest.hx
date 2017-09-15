@@ -4,38 +4,31 @@ import massive.munit.Assert;
 
 @:access(hscript.plus.ClassUtil)
 class ClassUtilTest {
-    var Player:Dynamic;
-
     public function new() {}
 
-    @Before
-    public function setup() {
-        Player = ClassUtil.createClass(Sprite);
-    }
-
     @Test
-    public function testSuperHasField() {
-        var sprite = { __super__: new Sprite() };
-        Assert.isTrue(ClassUtil.superHasField(sprite, "name"));
-        Assert.isTrue(ClassUtil.superHasField(sprite, "setMass"));
-    }
-
-    @Test
-    public function testSuperIsHaxeClass() {
-        var sprite = { __super__: new Sprite() };
-        Assert.isTrue(ClassUtil.superIsHaxeClass(sprite));
-        Assert.isTrue(ClassUtil.superIsHaxeClass(Player));
-    }
-
-    @Test
-	public function testIsDynamic() {
-        Assert.isTrue(ClassUtil.isDynamic(Player));
-		Assert.isFalse(ClassUtil.isDynamic(Sprite));
+	public function testIsDynamicObject() {
+        Assert.isTrue(ClassUtil.isDynamicObject({ super:null }));
+		Assert.isFalse(ClassUtil.isDynamicObject(ClassUtil));
+        Assert.isFalse(ClassUtil.isDynamicObject(null));
 	}
 
     @Test
-    public function testIsEitherHaxeClassOrInstance() {
-        Assert.isTrue(ClassUtil.isEitherHaxeClassOrInstance(Sprite));
-        Assert.isFalse(ClassUtil.isEitherHaxeClassOrInstance(Player));
+    public function testGetFirstInHierarchy() {
+        var s0 = { id:64 };
+        var s1 = { super:s0, pos:[10, 20] };
+        var s2 = { super:s1 };
+
+        var pos = ClassUtil.getFirstInHierachy(s2, "pos");
+        Assert.areEqual(s1.pos, pos);
+
+        var id = ClassUtil.getFirstInHierachy(s2, "id");
+        Assert.areEqual(s0.id, id);
+    }
+
+    @Test
+    public function testIsHaxeClassName() {
+        Assert.isTrue(ClassUtil.isHaxeClassName("Math"));
+        Assert.isFalse(ClassUtil.isHaxeClassName("ClassNotExists"));
     }
 }

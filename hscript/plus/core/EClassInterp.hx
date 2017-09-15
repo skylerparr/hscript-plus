@@ -3,19 +3,17 @@ package hscript.plus.core;
 import hscript.Expr;
 
 class EClassInterp {
-	var interp:InterpPlus;
-	var globals:Map<String, Dynamic>;
+	static var interp:InterpPlus;
+	static var globals:Map<String, Dynamic>;
 
-	public function new(interp:InterpPlus) {
-		this.interp = interp;
+    public static function createClassFromExpr(interp:InterpPlus, expr:Expr):Dynamic {
+		EClassInterp.interp = interp;
 		globals = interp.variables;
-	}
 
-    public function createClassFromExpr(expr:Expr) {
         switch (ExprHelper.getExprDef(expr)) {
 			case EClass(name, e, superClassName):
 				var superClass = getSuperClass(superClassName);
-				var classType = ClassUtil.createClass(name, superClass, { __statics__:new Array<String>() });
+				var classType:Dynamic = ClassUtil.create(interp, name, superClass);
 
 				globals.set(name, classType);
 
@@ -31,15 +29,13 @@ class EClassInterp {
 		}
     }
 
-	function getSuperClass(superClassName:String) {
+	static function getSuperClass(superClassName:String) {
 		return superClassName == null ? null : globals.get(superClassName);
 	}
 
-	function addClassFields(classType:Dynamic, e:Expr) {
+	static function addClassFields(classType:Dynamic, e:Expr) {
 		switch (ExprHelper.getExprDef(e)) {
 			case EFunction(args, _, name, _, access):
-				if (!isStatic(access))
-					args.unshift({ name:"this" });
 				setClassField(classType, name, e, access);
 			case EVar(name, _, e, access):
 				setClassField(classType, name, e, access);
@@ -47,13 +43,8 @@ class EClassInterp {
 		}
 	}
 
-	inline function isStatic(access:Array<Access>) {
-		return access != null && access.indexOf(AStatic) > -1;
-	}
-
-	function setClassField(object:Dynamic, name:String, e:Expr, access:Array<Access>) {
-		Reflect.setField(object, name, interp.expr(e));
-		if (isStatic(access))
-			object.__statics__.push(name);
+	static function setClassField(object:Dynamic, name:String, e:Expr, access:Array<Access>) {
+		var field = interp.superExpr(e);
+		Reflect.setField(object, name, field);
 	}
 }

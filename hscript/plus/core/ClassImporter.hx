@@ -4,22 +4,20 @@ import hscript.Expr;
 
 class ClassImporter {
 	public static inline var PATH_PLACEHOLDER = "$PATH";
-	public static inline var ERROR_MESSAGE = 'ClassImporter: $PATH_PLACEHOLDER not found';
+	public static inline var ERROR_MESSAGE = 'hscript.plus.core.ClassImporter: $PATH_PLACEHOLDER not found';
 
 	var globals:Map<String, Dynamic>;
     var resolveDynamicClass:String->Dynamic = name -> null;
 
 	var path:String;
-	var className:String;
 	var classType:Dynamic;
 
-    public function new(?resolveDynamicClass:String->Dynamic) {
-		if (resolveDynamicClass != null)
-			this.resolveDynamicClass = resolveDynamicClass;
+    public function new(interp:InterpPlus) {
+		globals = interp.variables;
     }
 
-	public function setInterp(interp:InterpPlus) {
-		globals = interp.variables;
+	public function setResolveImportFunction(func:String->Dynamic) {
+		resolveDynamicClass = func;
 	}
 
     public function importFromExpr(expr:Expr) {
@@ -37,19 +35,18 @@ class ClassImporter {
         }
     }
 
-    function classPathExtractedSuccessfully() {
+    inline function classPathExtractedSuccessfully() {
         return path != "";
     }
 
     function importClass() {
 		tryResolveClassType();
 		throwErrorIfCannotResolve();
-		getClassNameFromPath();
 		addClassToGlobals();
 	}
 
 	function tryResolveClassType() {
-		if (ClassUtil.classNameIsOfHaxeClass(path))
+		if (ClassUtil.isHaxeClassName(path))
 			classType = resolveHaxeClass(path)
 		else classType = resolveDynamicClass(path);
 	}
@@ -71,11 +68,12 @@ class ClassImporter {
 		return StringTools.replace(ERROR_MESSAGE, PATH_PLACEHOLDER, invalidPath);
 	}
 
-	function getClassNameFromPath() {
-		return className = path.split(".").pop();
+	function addClassToGlobals() {
+		var className = getClassNameFromPath();
+		globals.set(className, classType);
 	}
 
-	function addClassToGlobals() {
-		globals.set(className, classType);
+	function getClassNameFromPath() {
+		return path.split(".").pop();
 	}
 }

@@ -2,13 +2,11 @@ package hscript.plus;
 
 import massive.munit.Assert;
 
-class InterpPlusTest extends ClassEmulationTest_ {
+class InterpPlusTest extends TestScriptState {
 	@Test
-	@TestDebug
 	public function testCreateNormalObject() {
 		script = "
 		import Sprite;
-		trace(Sprite);
 		new Sprite()";
 		Assert.isType(returnedValue, Sprite);
 	}
@@ -48,9 +46,7 @@ class InterpPlusTest extends ClassEmulationTest_ {
 
 		script = '
 		import massive.munit.Assert;
-
-		pass = true;
-		Assert.isTrue(pass);
+		Assert.isTrue(true);
 		';
 	}
 
@@ -90,17 +86,13 @@ class InterpPlusTest extends ClassEmulationTest_ {
 			public function new(mass:Float) {
 				this.mass = mass;
 			}
-
-			public function assert(value) {
-				Assert.areEqual(value, mass);
-			}
 		}
 		';
 
 		var mass = 20;
 		var Object = returnedValue;
-		var object = ClassUtil.create(Object, [mass]);
-		object.assert(mass);
+		var object = ClassUtil.create(interp, "", Object, null, [mass]);
+		Assert.areEqual(mass, object.mass);
 	}
 
 	@Test
@@ -126,18 +118,18 @@ class InterpPlusTest extends ClassEmulationTest_ {
 	}
 
 	@Test
+	
 	public function testWithoutThis() {
 		script = '
 		class WithoutThis {
-			var x:Int;
+			var x:Int = -1;
 			public function new() {
 				x = 0;
 			}
 		}
 		';
-		var WithoutThis = returnedValue;
-		var withoutThis = ClassUtil.create(WithoutThis);
-		Assert.areEqual(0, withoutThis.x);
+		var object = ClassUtil.create(interp, "", returnedValue);
+		Assert.areEqual(0, object.x);
 	}
 
 	@Test
@@ -160,6 +152,60 @@ class InterpPlusTest extends ClassEmulationTest_ {
 		FunctionReturnValue.getNum();
 		';
 		Assert.areEqual(10, returnedValue);
+	}
+
+	@Test
+	//
+	public function testInheritance() {
+		script = "
+		class GameObject {
+			public var exists:Bool = true;
+
+			public function destroy() {
+				exists = false;
+			}
+		}
+
+		class PhysicalObject extends GameObject {}
+		
+		object = new PhysicalObject();
+		object.destroy();
+		";
+
+		var object = get("object");
+		Assert.isFalse(object.exists);
+	}
+
+	@Test
+	//
+	public function testMultipleInheritance() {
+		script = "
+		class GameObject {
+			public var exists:Bool = true;
+
+			public function destroy() {
+				exists = false;
+			}
+		}
+
+		class PhysicalObject extends GameObject {
+			public var mass:Float = 1;
+
+			public function setMass(newMass:Float) {
+				mass = newMass;
+			}
+		}
+
+		class SpriteObject extends PhysicalObject {}
+
+		sprite = new SpriteObject();
+		sprite.setMass(25);
+		sprite.destroy();
+		";
+
+		var sprite = get("sprite");
+		Assert.areEqual(25, sprite.mass);
+		Assert.isFalse(sprite.exists);
 	}
 
 	@Test

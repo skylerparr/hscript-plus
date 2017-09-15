@@ -4,7 +4,6 @@ import massive.munit.Assert;
 import hscript.Expr;
 import hscript.plus.ParserPlus;
 import hscript.plus.InterpPlus;
-import hscript.plus.core.ClassImporter;
 
 @:access(hscript.plus.InterpPlus.prependSuper)
 class TestScriptState {
@@ -22,33 +21,29 @@ class TestScriptState {
 	@Before
 	public function setup() {
 		parser = new ParserPlus();
-        interp = new InterpPlus(new ClassImporter());
+        interp = new InterpPlus();
 
 		set("Assert", Assert);
 		set("pass", false);
 	}
 
-	public inline function set(name:String, value:Dynamic) {
+	inline function set(name:String, value:Dynamic) {
 		return interp.variables.set(name, value);
 	}
 
-	public inline function setMany(variables:Dynamic) {
+	inline function setMany(variables:Dynamic) {
 		for (name in Reflect.fields(variables)) {
             var value = Reflect.field(variables, name);
             set(name, value);
         }
 	}
 
-	public inline function get(name:String) {
+	inline function get(name:String) {
 		return interp.variables.get(name);
 	}
 
-	public inline function requestAstTrace() {
+	inline function requestAstTrace() {
 		astTraceRequested = true;
-	}
-
-	public inline function prependSuper(e:Expr) {
-		return interp.prependSuper(e);
 	}
 
 	function set_script(newScript:String) {
@@ -70,7 +65,7 @@ class TestScriptState {
 		}
 	}
 
-	inline function execute(ast:Expr) {
+	function execute(ast:Expr) {
 		return returnedValue = interp.execute(ast);
 	}
 
