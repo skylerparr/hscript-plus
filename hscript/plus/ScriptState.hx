@@ -1,6 +1,5 @@
 package hscript.plus;
 
-import hscript.plus.core.ClassImporter;
 import haxe.CallStack;
 import hscript.Expr;
 
