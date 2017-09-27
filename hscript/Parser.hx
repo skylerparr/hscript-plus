@@ -1,26 +1,23 @@
 /*
- * Copyright (c) 2008, Nicolas Cannasse
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Copyright (C)2008-2017 Haxe Foundation
  *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE HAXE PROJECT CONTRIBUTORS "AS IS" AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE HAXE PROJECT CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 package hscript;
 import hscript.Expr;
@@ -41,6 +38,7 @@ enum Token {
 	TBkClose;
 	TQuestion;
 	TDoubleDot;
+	TMeta( s : String );
 }
 
 class Parser {
@@ -68,6 +66,11 @@ class Parser {
 		allow types declarations
 	**/
 	public var allowTypes : Bool;
+
+	/**
+		allow haxe metadata declarations
+	**/
+	public var allowMetadata : Bool;
 
 	// implementation
 	var input : haxe.io.Input;
@@ -200,6 +203,16 @@ class Parser {
 		if( t != tk ) unexpected(t);
 	}
 
+	function getIdent() {
+		var tk = token();
+		switch( tk ) {
+		case TId(id): return id;
+		default:
+			unexpected(tk);
+			return null;
+		}
+	}
+
 	inline function expr(e:Expr) {
 		#if hscriptPos
 		return e.e;
@@ -248,6 +261,7 @@ class Parser {
 		case EFor(_,_,e): isBlock(e);
 		case EReturn(e): e != null && isBlock(e);
 		case ETry(_, _, _, e): isBlock(e);
+		case EMeta(_, _, e): isBlock(e);
 		default: false;
 		}
 	}
@@ -384,10 +398,37 @@ class Parser {
 					return parseExprNext(e);
 				default:
 				}
-			return parseExprNext(mk(EArrayDecl(a),p1));
+			return parseExprNext(mk(EArrayDecl(a), p1));
+		case TMeta(id) if( allowMetadata ):
+			var args = parseMetaArgs();
+			return mk(EMeta(id, args, parseExpr()),p1);
 		default:
 			return unexpected(tk);
 		}
+	}
+
+	function parseMetaArgs() {
+		var tk = token();
+		if( tk != TPOpen ) {
+			push(tk);
+			return null;
+		}
+		var args = [];
+		tk = token();
+		if( tk != TPClose ) {
+			push(tk);
+			while( true ) {
+				args.push(parseExpr());
+				switch( token() ) {
+				case TComma:
+				case TPClose:
+					break;
+				case tk:
+					unexpected(tk);
+				}
+			}
+		}
+		return args;
 	}
 
 	function mapCompr( tmp : String, e : Expr ) {
@@ -460,13 +501,8 @@ class Parser {
 			}
 			mk(EIf(cond,e1,e2),p1,(e2 == null) ? tokenMax : pmax(e2));
 		case "var":
+			var ident = getIdent();
 			var tk = token();
-			var ident = null;
-			switch(tk) {
-			case TId(id): ident = id;
-			default: unexpected(tk);
-			}
-			tk = token();
 			var t = null;
 			if( tk == TDoubleDot && allowTypes ) {
 				t = parseType();
@@ -494,13 +530,8 @@ class Parser {
 			mk(EDoWhile(econd,e),p1,pmax(econd));
 		case "for":
 			ensure(TPOpen);
+			var vname = getIdent();
 			var tk = token();
-			var vname = null;
-			switch( tk ) {
-			case TId(id): vname = id;
-			default: unexpected(tk);
-			}
-			tk = token();
 			if( !Type.enumEq(tk,TId("in")) ) unexpected(tk);
 			var eiter = parseExpr();
 			ensure(TPClose);
@@ -568,21 +599,13 @@ class Parser {
 			mk(EReturn(e),p1,if( e == null ) tokenMax else pmax(e));
 		case "new":
 			var a = new Array();
-			var tk = token();
-			switch( tk ) {
-			case TId(id): a.push(id);
-			default: unexpected(tk);
-			}
+			a.push(getIdent());
 			var next = true;
 			while( next ) {
-				tk = token();
+				var tk = token();
 				switch( tk ) {
 				case TDot:
-					tk = token();
-					switch(tk) {
-					case TId(id): a.push(id);
-					default: unexpected(tk);
-					}
+					a.push(getIdent());
 				case TPOpen:
 					next = false;
 				default:
@@ -599,11 +622,7 @@ class Parser {
 			var tk = token();
 			if( !Type.enumEq(tk, TId("catch")) ) unexpected(tk);
 			ensure(TPOpen);
-			tk = token();
-			var vname = switch( tk ) {
-			case TId(id): id;
-			default: unexpected(tk);
-			}
+			var vname = getIdent();
 			ensure(TDoubleDot);
 			var t = null;
 			if( allowTypes )
@@ -700,12 +719,7 @@ class Parser {
 			}
 			return makeBinop(op,e1,parseExpr());
 		case TDot:
-			tk = token();
-			var field = null;
-			switch(tk) {
-			case TId(id): field = id;
-			default: unexpected(tk);
-			}
+			var field = getIdent();
 			return parseExprNext(mk(EField(e1,field),pmin(e1)));
 		case TPOpen:
 			return parseExprNext(mk(ECall(e1,parseExprList(TPClose)),pmin(e1)));
@@ -733,13 +747,7 @@ class Parser {
 				t = token();
 				if( t != TDot )
 					break;
-				t = token();
-				switch( t ) {
-				case TId(v):
-					path.push(v);
-				default:
-					unexpected(t);
-				}
+				path.push(getIdent());
 			}
 			var params = null;
 			switch( t ) {
@@ -758,7 +766,7 @@ class Parser {
 								tokens.add({ t : TOp(op.substr(1)), min : tokenMax - op.length - 1, max : tokenMax });
 								#else
 								tokens.add(TOp(op.substr(1)));
-								#end								
+								#end
 								break;
 							}
 						default:
@@ -777,19 +785,29 @@ class Parser {
 			return parseTypeNext(CTParent(t));
 		case TBrOpen:
 			var fields = [];
+			var meta = null;
 			while( true ) {
 				t = token();
 				switch( t ) {
 				case TBrClose: break;
+				case TId("var"):
+					var name = getIdent();
+					ensure(TDoubleDot);
+					fields.push( { name : name, t : parseType(), meta : meta } );
+					meta = null;
+					ensure(TSemicolon);
 				case TId(name):
 					ensure(TDoubleDot);
-					fields.push( { name : name, t : parseType() } );
+					fields.push( { name : name, t : parseType(), meta : meta } );
 					t = token();
 					switch( t ) {
 					case TComma:
 					case TBrClose: break;
 					default: unexpected(t);
 					}
+				case TMeta(name):
+					if( meta == null ) meta = [];
+					meta.push({ name : name, params : parseMetaArgs() });
 				default:
 					unexpected(t);
 				}
@@ -1082,6 +1100,20 @@ class Parser {
 					return TOp("=>");
 				this.char = char;
 				return TOp("=");
+			case '@'.code:
+				char = readChar();
+				if( idents[char] || char == ':'.code ) {
+					var id = String.fromCharCode(char);
+					while( true ) {
+						char = readChar();
+						if( !idents[char] ) {
+							this.char = char;
+							return TMeta(id);
+						}
+						id += String.fromCharCode(char);
+					}
+				}
+				invalidChar(char);
 			default:
 				if( ops[char] ) {
 					var op = String.fromCharCode(char);
@@ -1186,6 +1218,7 @@ class Parser {
 		case TBkClose: "]";
 		case TQuestion: "?";
 		case TDoubleDot: ":";
+		case TMeta(id): "@" + id;
 		}
 	}
 
