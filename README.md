@@ -8,96 +8,16 @@ Adds class to [hscript](https://github.com/HaxeFoundation/hscript) by leveraging
 haxelib git hscript-plus https://github.com/DleanJeans/hscript-plus/
 ```
 
-### hscript
-#### Installing
-```
-haxelib install hscript
-```
-
-#### Document
-Go read hscript's [README](https://github.com/HaxeFoundation/hscript/blob/master/README.md)
-
-#### Limitations
-- No wildcard imports
-- No string interpolation
-- No parameter default value
+Read hscript's [README](https://github.com/HaxeFoundation/hscript/blob/master/README.md)
 
 ## Features
-Improved from hscript
-
+Improved from hscript:
 - Anonymous structure (Dynamic) classes
 - Optimized for code completion
 - `package` and `import`
 
 ## Usage
-```haxe
-var scriptState = new ScriptState();
-// executes script from a file
-scriptState.executeFile(scriptPath);
 
-var script = "
-class Object {
-	// main() is called automatically when script is executed
-	public static function main() {
-		var object = new Object(10, 10);
-		object.name = NAME;
-		trace('name: ' + object.name);
-		trace('x: ' + object.x);
-		trace('y: ' + object.y);
-	}
-	
-	public var x:Float = 0;
-	public var y:Float = 0;
-
-	public function new(x:Float, y:Float) {
-		this.x = x;
-		this.y = y;
-	}
-}
-";
-scriptState.set("NAME", "Ball"); // set a global variable
-scriptState.executeString(script); // executes a String
-// name: Ball
-// x: 10
-// y: 10
-
-// get a global variable
-var Object = scriptState.get("Object"); // get a global variable
-Object.main();
-// name: Ball
-// x: 10
-// y: 10
-```
-
-## How it works
-There are 4 classes in `hscript-plus`
-- [`hscript.plus.ScriptState`](https://github.com/DleanJeans/hscript-plus/blob/dev/hscript/plus/ScriptState.hx)
-	- contains `hscript.plus.Parser` and `hscript.plus.Interp`
-	- executes scripts and stores global variables in them
-- [`hscript.plus.ClassUtil`](https://github.com/DleanJeans/hscript-plus/blob/dev/hscript/plus/ClassUtil.hx):
-	- is the main class for class emulation
-	- has two static functions `create()` and `classExtends()` for creating new object and new child class, respectively
-- [`hscript.plus.Parser`](https://github.com/DleanJeans/hscript-plus/blob/dev/hscript/plus/Parser.hx): An extended `hscript.Parser`
-	- Parses keywords: `package`, `import`, `class`, `static`
-	- Parses access modifier keywords to prevent runtime errors: `public`, `private`, `override`, `dynamic`, `inline` (but these have no effects over functions and variables)
-- [`hscript.plus.Interp`](https://github.com/DleanJeans/hscript-plus/blob/dev/hscript/plus/Interp.hx): An extended `hscirpt.Interp`
-	- Auto imports class
-	- Handles class declaration
-	- Unshifts a `this` parameter to every nonstatic member function
-	- Overrides `Interp::cnew()` to create script object if `super.cnew()` fails to create a real class when call `new ClassName(...)`
-	- "Automatically" adds `this.` to access class members, by overriding [`Interp::resolve()`](https://github.com/DleanJeans/hscript-plus/blob/dev/hscript/plus/Interp.hx#L97) to get `this` object from `locals` value
-
-	
-
-## Limitations
-- ~~You need to access class members from `this`~~
-
-## Todos
-- [ ] String interpolation
-- [ ] Try catch interpreting error
-- [ ] Hotswapping
-- [x] Call variables and functions calling `this`
-- [x] Filter out static fields in `ClassUtil.createClass()`
 
 ### **End of hscript-plus README**
 
