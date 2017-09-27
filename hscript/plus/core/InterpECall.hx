@@ -3,22 +3,12 @@ package hscript.plus.core;
 import hscript.Expr;
 
 @:access(hscript.plus.InterpPlus)
-class ECallInterp {
+class InterpECall {
     static var interp:InterpPlus;
     static var thisHistory:Array<Dynamic> = [];
 
-    public static function call(object:Dynamic, field:String, args:Array<Dynamic>):Dynamic {
-         var objectIsDynamic = ClassUtil.isDynamicObject(object);
-        if (objectIsDynamic)
-            setThis(object);
-        var value = interp.fcall(object, field, args);
-        if (objectIsDynamic)
-            popThis();
-        return value;
-    }
-
     public static function expr(interp:InterpPlus, e:Expr) {
-        ECallInterp.interp = interp;
+        InterpECall.interp = interp;
 
         switch (interp.edef(e)) {
             case ECall(e, params):
@@ -36,6 +26,16 @@ class ECallInterp {
                 }
             default: return null;
         }
+    }
+
+    public static function call(object:Dynamic, field:String, args:Array<Dynamic>):Dynamic {
+         var objectIsDynamic = DynamicFun.isDynamicObject(object);
+        if (objectIsDynamic)
+            setThis(object);
+        var value = interp.fcall(object, field, args);
+        if (objectIsDynamic)
+            popThis();
+        return value;
     }
 
     static function setThis(object:Dynamic) {

@@ -2,7 +2,7 @@ package hscript.plus.core;
 
 import massive.munit.Assert;
 
-class ECallInterpTest extends TestScriptState {
+class InterpECallTest extends TestScriptState {
     @Test
     
     public function testThisInGlobals() {
@@ -15,7 +15,7 @@ class ECallInterpTest extends TestScriptState {
         Entity.me();
         ";
         var Entity = get("Entity");
-        Assert.areEqual(Entity, returnedValue);
+        Assert.areEqual(Entity, scriptReturn);
     }
 
     @Test
@@ -30,7 +30,7 @@ class ECallInterpTest extends TestScriptState {
         Entity.new();
         ";
         var Entity = get("Entity");
-        Assert.areEqual(Entity, returnedValue);
+        Assert.areEqual(Entity, scriptReturn);
     }
 
     @Test
@@ -46,6 +46,6 @@ class ECallInterpTest extends TestScriptState {
         WithoutThis.new();
 		';
         var WithoutThis = interp.globals.get("WithoutThis");
-		Assert.areEqual(WithoutThis, returnedValue);
+		Assert.areEqual(WithoutThis, scriptReturn);
 	}
 }

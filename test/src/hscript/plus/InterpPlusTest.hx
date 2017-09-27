@@ -1,6 +1,7 @@
 package hscript.plus;
 
 import massive.munit.Assert;
+import hscript.plus.core.DynamicFun;
 
 class InterpPlusTest extends TestScriptState {
 	@Test
@@ -8,7 +9,7 @@ class InterpPlusTest extends TestScriptState {
 		script = "
 		import Sprite;
 		new Sprite()";
-		Assert.isType(returnedValue, Sprite);
+		Assert.isType(scriptReturn, Sprite);
 	}
 
 	@Test
@@ -26,7 +27,7 @@ class InterpPlusTest extends TestScriptState {
 		}
 		';
 
-		var object = returnedValue;
+		var object = scriptReturn;
 		Assert.areEqual(10, object.mass);
 	}
 
@@ -36,7 +37,7 @@ class InterpPlusTest extends TestScriptState {
 		public function main()
 			pass = true;';
 
-		var main = returnedValue;
+		var main = scriptReturn;
 		main();
 	}
 
@@ -75,7 +76,7 @@ class InterpPlusTest extends TestScriptState {
 
 		new New().num;
 		';
-		Assert.areEqual(50, returnedValue);
+		Assert.areEqual(50, scriptReturn);
 	}
 
 	@Test
@@ -90,8 +91,8 @@ class InterpPlusTest extends TestScriptState {
 		';
 
 		var mass = 20;
-		var Object = returnedValue;
-		var object = ClassUtil.create(interp, "", Object, null, [mass]);
+		var Object = scriptReturn;
+		var object = DynamicFun.create(interp, "", Object, null, [mass]);
 		Assert.areEqual(mass, object.mass);
 	}
 
@@ -128,7 +129,7 @@ class InterpPlusTest extends TestScriptState {
 			}
 		}
 		';
-		var object = ClassUtil.create(interp, "", returnedValue);
+		var object = DynamicFun.create(interp, "", scriptReturn);
 		Assert.areEqual(0, object.x);
 	}
 
@@ -151,11 +152,10 @@ class InterpPlusTest extends TestScriptState {
 
 		FunctionReturnValue.getNum();
 		';
-		Assert.areEqual(10, returnedValue);
+		Assert.areEqual(10, scriptReturn);
 	}
 
 	@Test
-	//
 	public function testInheritance() {
 		script = "
 		class GameObject {
@@ -177,7 +177,6 @@ class InterpPlusTest extends TestScriptState {
 	}
 
 	@Test
-	//
 	public function testMultipleInheritance() {
 		script = "
 		class GameObject {
@@ -206,21 +205,5 @@ class InterpPlusTest extends TestScriptState {
 		var sprite = get("sprite");
 		Assert.areEqual(25, sprite.mass);
 		Assert.isFalse(sprite.exists);
-	}
-
-	@Test
-	@Ignore("Move this to the nonexistent ClassImporterTest class")
-	//@:access(hscript.plus.InterpPlus.formatImportExceptionMessage)
-	public function importInvalidClass() {
-		var errorMessage = "";
-		try {
-			script = "
-			import InvalidClass;
-			";
-		}
-		catch (e:String) {
-			errorMessage = e;
-		}
-		//Assert.areEqual(interp.formatImportExceptionMessage("InvalidClass"), errorMessage);
 	}
 }

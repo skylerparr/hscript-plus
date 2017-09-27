@@ -11,7 +11,7 @@ class TestScriptState {
     var interp:InterpPlus;
 
 	var astTraceRequested:Bool = false;
-	var returnedValue:Dynamic;
+	var scriptReturn:Dynamic;
 
 	var script(default, set):String;
 	var pass(get, never):Bool;
@@ -66,7 +66,7 @@ class TestScriptState {
 	}
 
 	function execute(ast:Expr) {
-		return returnedValue = interp.execute(ast);
+		return scriptReturn = interp.execute(ast);
 	}
 
 	function get_pass() {

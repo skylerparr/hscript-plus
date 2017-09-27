@@ -94,7 +94,7 @@ class ParserPlus extends Parser {
 	}
 
 	/**
-	 *  @return You will get "something.like.this"
+	 *  @return "something.like.this"
 	 */
 	function parsePath():String {
 		var tk = token();

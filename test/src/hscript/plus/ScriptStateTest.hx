@@ -5,11 +5,11 @@ import massive.munit.Assert;
 class ScriptStateTest {
     var state:ScriptState;
     var script(default, set):String;
-    var returnedValue:Dynamic;
+    var scriptReturn:Dynamic;
 
     function set_script(newScript:String) {
         script = newScript;
-        returnedValue = state.executeString(newScript);
+        scriptReturn = state.executeString(newScript);
         return newScript;
     }    
 
@@ -67,7 +67,7 @@ class ScriptStateTest {
                 this.mass = mass;
         }
         ';
-        var object = returnedValue;
+        var object = scriptReturn;
         Assert.areEqual(10, object.mass);
     }
 

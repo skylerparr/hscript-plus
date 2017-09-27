@@ -7,31 +7,9 @@ class InterpPlus extends Interp {
 	public var globals(default, null):Map<String, Dynamic>;
 
 	var classImporter:ClassImporter;
-	var eclassInterp:EClassInterp;
+	var eclassInterp:InterpEClass;
 
 	var exprSteps:Array<Expr->Dynamic> = [];
-
-	override function get(o:Dynamic, f:String):Dynamic {
-		var value = ClassUtil.getFirstInHierachy(o, f);
-		if (value == null)
-			value = super.get(o, f);
-		return value;
-	}
-
-	override function resolve(id:String):Dynamic {
-		var value:Dynamic = null;
-		
-		try {
-			value = super.resolve(id);
-		}
-		catch (e:Error) {
-			var object = globals.get("this");
-			if (object != null)
-				value = ClassUtil.getFirstInHierachy(object, id);
-		}
-
-		return value;
-	}
 
 	override function assign(e1:Expr, e2:Expr):Dynamic {
 		var assignedValue = expr(e2);
@@ -53,14 +31,18 @@ class InterpPlus extends Interp {
 
 		classImporter = new ClassImporter(this);
 
-		pushExprStep(ECallInterp.expr.bind(this));
-		pushExprStep(superExpr);
-		pushExprStepVoid(classImporter.importFromExpr);
-		pushExprStep(EClassInterp.createClassFromExpr.bind(this));
+		setupExprSteps();
 	}
 
 	public function setResolveImportFunction(func:String->Dynamic) {
 		classImporter.setResolveImportFunction(func);
+	}
+
+	function setupExprSteps() {
+		pushExprStep(InterpECall.expr.bind(this));
+		pushExprStep(superExpr);
+		pushExprStepVoid(classImporter.importFromExpr);
+		pushExprStep(InterpEClass.expr.bind(this));
 	}
 
 	function pushExprStepVoid(stepVoid:Expr->Void) {
@@ -70,6 +52,10 @@ class InterpPlus extends Interp {
 
 	function pushExprStep(step:Expr->Dynamic) {
 		exprSteps.push(step);
+	}
+
+	public function superExpr(e:Expr):Dynamic {
+		return super.expr(e);
 	}
 
 	override public function expr(e:Expr):Dynamic {
@@ -86,19 +72,27 @@ class InterpPlus extends Interp {
 		return ret;
 	}
 
-	public function superExpr(e:Expr):Dynamic {
-		return super.expr(e);
+	override function get(o:Dynamic, f:String):Dynamic {
+		return InterpGet.get(this, o, f);
+	}
+
+	override function resolve(id:String):Dynamic {
+		return InterpResolve.resolve(this, id);
 	}
 
 	override function cnew(className:String, args:Array<Dynamic>):Dynamic {
-		return Cnew.newClass(this, className, args);
+		return InterpCnew.cnew(this, className, args);
 	}
 
-	function superCnew(className:String, args:Array<Dynamic>) {
+	public function superCnew(className:String, args:Array<Dynamic>) {
 		return super.cnew(className, args);
 	}
 
-	function superResolve(className:String) {
+	public function superResolve(className:String) {
 		return super.resolve(className);
+	}
+
+	public function superGet(o:Dynamic, f:String):Dynamic {
+		return super.get(o, f);
 	}
 }

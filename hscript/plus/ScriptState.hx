@@ -46,7 +46,6 @@ class ScriptState {
 	var _parser:ParserPlus;
 	var _interp:InterpPlus;
 
-	@:access(hscript.plus.InterpPlus)
 	public function new() {
 		_parser = new ParserPlus();
 		_parser.allowTypes = true;

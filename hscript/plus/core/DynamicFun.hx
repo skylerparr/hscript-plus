@@ -1,8 +1,6 @@
-package hscript.plus;
+package hscript.plus.core;
 
-import hscript.plus.core.DynamicCreator;
-
-class ClassUtil {
+class DynamicFun {
 	public static var create(default, null) = DynamicCreator.create;
 
 	public static function getFirstInHierachy(object:Dynamic, fieldName:String) {

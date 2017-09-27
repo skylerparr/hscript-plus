@@ -42,11 +42,11 @@ class ClassImporter {
     function importClass() {
 		tryResolveClassType();
 		throwErrorIfCannotResolve();
-		addClassToGlobals();
+		addClassToGlobalsIfSuccessful();
 	}
 
 	function tryResolveClassType() {
-		if (ClassUtil.isHaxeClassName(path))
+		if (DynamicFun.isHaxeClassName(path))
 			classType = resolveHaxeClass(path)
 		else classType = resolveDynamicClass(path);
 	}
@@ -68,7 +68,7 @@ class ClassImporter {
 		return StringTools.replace(ERROR_MESSAGE, PATH_PLACEHOLDER, invalidPath);
 	}
 
-	function addClassToGlobals() {
+	function addClassToGlobalsIfSuccessful() {
 		var className = getClassNameFromPath();
 		globals.set(className, classType);
 	}
