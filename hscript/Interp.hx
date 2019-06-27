@@ -319,6 +319,7 @@ class Interp {
 			var value = expr(e);
 			declared.push({ n : n, old : locals.get(n) });
 			locals.set(n,{ r : value });
+			variables.set(n, (e == null)?null:expr(e));
 			return value;
 		case EParent(e):
 			return expr(e);
