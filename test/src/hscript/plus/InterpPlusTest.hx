@@ -119,7 +119,7 @@ class InterpPlusTest extends TestScriptState {
 	}
 
 	@Test
-	
+
 	public function testWithoutThis() {
 		script = '
 		class WithoutThis {
@@ -167,7 +167,7 @@ class InterpPlusTest extends TestScriptState {
 		}
 
 		class PhysicalObject extends GameObject {}
-		
+
 		object = new PhysicalObject();
 		object.destroy();
 		";

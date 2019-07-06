@@ -20,7 +20,7 @@ class ScriptStateTest {
         state = new ScriptState();
         state.set("pass", false);
         #if (flash || js)
-        state.getFileContent = path -> haxe.Resource.getString(path);
+        state.getFileContent = function(path) { return haxe.Resource.getString(path); };
         state.getScriptPaths = haxe.Resource.listNames;
         #end
     }

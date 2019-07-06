@@ -38,6 +38,8 @@ enum Token {
 	TBkClose;
 	TQuestion;
 	TDoubleDot;
+	TGTypeOpen;
+	TGTypeClose;
 	TMeta( s : String );
 }
 
@@ -1218,6 +1220,8 @@ class Parser {
 		case TBkClose: "]";
 		case TQuestion: "?";
 		case TDoubleDot: ":";
+		case TGTypeOpen: "<";
+		case TGTypeClose: ">";
 		case TMeta(id): "@" + id;
 		}
 	}

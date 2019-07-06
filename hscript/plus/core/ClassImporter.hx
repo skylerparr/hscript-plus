@@ -7,7 +7,7 @@ class ClassImporter {
 	public static inline var ERROR_MESSAGE = 'hscript.plus.core.ClassImporter: $PATH_PLACEHOLDER not found';
 
 	var globals:Map<String, Dynamic>;
-    var resolveDynamicClass:String->Dynamic = name -> null;
+    var resolveDynamicClass:String->Dynamic = function(name) { return null; }
 
 	var path:String;
 	var classType:Dynamic;

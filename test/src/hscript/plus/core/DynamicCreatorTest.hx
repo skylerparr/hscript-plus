@@ -21,7 +21,7 @@ class DynamicCreatorTest {
     @Before
     public function setup() {
         Entity = create(interp, NAME, null, { id:-1 });
-        Reflect.setField(Entity, "new", () -> Entity.id = 0);
+        Reflect.setField(Entity, "new", function() { Entity.id = 0; });
         Point = create(interp, "Point", Entity, { x:0, y:0 });
     }
 

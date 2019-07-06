@@ -46,7 +46,7 @@ class InterpPlus extends Interp {
 	}
 
 	function pushExprStepVoid(stepVoid:Expr->Void) {
-		var  step = e -> { stepVoid(e); return null; };
+		var  step = function(e) { stepVoid(e); return null; };
 		pushExprStep(step);
 	}
 
