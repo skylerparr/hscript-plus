@@ -68,6 +68,7 @@ enum Expr {
 	ESwitch( e : Expr, cases : Array<{ values : Array<Expr>, expr : Expr }>, ?defaultExpr : Expr);
 	EDoWhile( cond : Expr, e : Expr);
 	EMeta( name : String, args : Array<Expr>, e : Expr );
+	ECast(e:Expr, t:Null<CType>);
 
 	EClass(name:String, e:Expr, ?baseClass:String);
 	EPackage(path:String);

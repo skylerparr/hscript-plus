@@ -141,12 +141,12 @@ class ScriptState {
 		else error('Provide a function for getScriptPaths or getScriptPathsFromDirectory');
 
 		// filter out paths not ending with ".hx"
-		paths = paths.filter(function(path) { return path.endsWith(".hx"); });
+		paths = paths.filter(path -> path.endsWith(".hx"));
 		// prepend the directory to the path if it doesn't start with the directory
-		paths = paths.map(function(path) {
+		paths = paths.map(path ->{
 			return
 			if (path.startsWith(directory))
-				path;
+				path
 			else directory + path;
 		});
 		

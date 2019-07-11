@@ -38,8 +38,6 @@ enum Token {
 	TBkClose;
 	TQuestion;
 	TDoubleDot;
-	TGTypeOpen;
-	TGTypeClose;
 	TMeta( s : String );
 }
 
@@ -516,6 +514,30 @@ class Parser {
 			else
 				push(tk);
 			mk(EVar(ident,t,e),p1,(e == null) ? tokenMax : pmax(e));
+		case "cast":
+			var a = new Array();
+			var next = true;
+			while( next ) {
+				var tk = token();
+				switch( tk ) {
+					case TDot:
+						a.push(getIdent());
+					case TPOpen:
+						next = false;
+					default:
+						unexpected(tk);
+				}
+			}
+			var castType = parseHardCast(TPClose);
+			#if macro
+			lang.macros.MacroLogger.log(castType.value, 'value');
+			lang.macros.MacroLogger.log(castType.type, 'type');
+
+			lang.macros.MacroLogger.log(macro {
+				var a: Array<Dynamic> = cast([1, "2", three], Array);
+			});
+			#end
+			mk(ECast(mk(castType.value, p1), castType.type));
 		case "while":
 			var econd = parseExpr();
 			var e = parseExpr();
@@ -840,6 +862,29 @@ class Parser {
 		default:
 			return CTFun([t], t2);
 		}
+	}
+
+	function parseHardCast( etk ) {
+		var frags: Dynamic = {};
+		var tk = token();
+		if( tk == etk )
+			throw unexpected(tk);
+		push(tk);
+		while( true ) {
+			frags.value = parseExpr();
+			tk = token();
+			switch( tk ) {
+				case TComma:
+					var type = parseType();
+					frags.type = type;
+					tk = token();
+					break;
+				default:
+					if( tk == etk ) break;
+					unexpected(tk);
+			}
+		}
+		return frags;
 	}
 
 	function parseExprList( etk ) {
@@ -1220,8 +1265,6 @@ class Parser {
 		case TBkClose: "]";
 		case TQuestion: "?";
 		case TDoubleDot: ":";
-		case TGTypeOpen: "<";
-		case TGTypeClose: ">";
 		case TMeta(id): "@" + id;
 		}
 	}
