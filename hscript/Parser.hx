@@ -529,14 +529,6 @@ class Parser {
 				}
 			}
 			var castType = parseHardCast(TPClose);
-			#if macro
-			lang.macros.MacroLogger.log(castType.value, 'value');
-			lang.macros.MacroLogger.log(castType.type, 'type');
-
-			lang.macros.MacroLogger.log(macro {
-				var a: Array<Dynamic> = cast([1, "2", three], Array);
-			});
-			#end
 			mk(ECast(mk(castType.value, p1), castType.type));
 		case "while":
 			var econd = parseExpr();

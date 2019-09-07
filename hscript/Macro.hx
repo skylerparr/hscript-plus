@@ -189,7 +189,8 @@ class Macro {
 					var p = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
 					EFor({ expr : EBinop(OpIn,{ expr : EConst(CIdent(v)), pos : p },convert(it)), pos : p }, convert(efor));
 				#elseif (haxe_211 || haxe3)
-					var p = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
+					var p = #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
+					#if macro p = haxe.macro.Context.currentPos(); #end
 					EFor({ expr : EIn({ expr : EConst(CIdent(v)), pos : p },convert(it)), pos : p }, convert(efor));
 				#else
 					EFor(v, convert(it), convert(efor));
@@ -236,12 +237,13 @@ class Macro {
 			case ESwitch(e, cases, edef):
 				ESwitch(convert(e), [for( c in cases ) { values : [for( v in c.values ) convert(v)], expr : convert(c.expr) } ], edef == null ? null : convert(edef));
 			case EMeta(m, params, esub):
-				var mpos = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
+				var mpos = #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
+				#if macro p = haxe.macro.Context.currentPos(); #end
 				EMeta({ name : m, params : params == null ? [] : [for( p in params ) convert(p)], pos : mpos }, convert(esub));
 			case ECast(e, type):
 				ECast(convert(e), convertType(type));
 			default:null;
-		}, pos : #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end }
+		}, pos : #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #elseif macro haxe.macro.Context.currentPos() #else p #end }
 	}
 
 }
