@@ -242,7 +242,12 @@ class Macro {
 				EMeta({ name : m, params : params == null ? [] : [for( p in params ) convert(p)], pos : mpos }, convert(esub));
 			case ECast(e, type):
 				ECast(convert(e), convertType(type));
-			default:null;
+			default:
+        var retVal = convert(Reflect.field(e, 'e'));
+        if(retVal == null) {
+          null;
+        }
+        retVal.expr;
 		}, pos : #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #elseif macro haxe.macro.Context.currentPos() #else p #end }
 	}
 
