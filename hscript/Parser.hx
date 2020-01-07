@@ -317,6 +317,7 @@ class Parser {
 		#if hscriptPos
 		var p1 = tokenMin;
 		#end
+
 		switch( tk ) {
 		case TId(id):
 			var e = parseStructure(id);
@@ -617,6 +618,7 @@ class Parser {
 			var a = new Array();
 			a.push(getIdent());
 			var next = true;
+			var isTOp: Bool = false;
 			while( next ) {
 				var tk = token();
 				switch( tk ) {
@@ -624,10 +626,23 @@ class Parser {
 					a.push(getIdent());
 				case TPOpen:
 					next = false;
+				case TOp('<'):
+					next = true;
+					isTOp = true;
+					parseType();
+				case TComma:
+					if(!isTOp) {
+						unexpected(tk);
+					}
+					next = true;
+					parseType();
+				case TOp('>'):
+					isTOp = false;
 				default:
 					unexpected(tk);
 				}
 			}
+
 			var args = parseExprList(TPClose);
 			mk(ENew(a.join("."),args),p1);
 		case "throw":
