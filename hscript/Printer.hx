@@ -294,12 +294,6 @@ class Printer {
 			add(" ");
 			expr(e);
 		case ECast(e, type):
-			#if macro
-			lang.macros.MacroLogger.log(e, 'e');
-			lang.macros.MacroLogger.log(type, 'typeeeeee');
-
-//			var a: Array<Dynamic> = cast([1, "2", three], Array);
-			#end
 			add("cast($e, $type)");
 		case EPackage(path):
 			add("package $path;");
