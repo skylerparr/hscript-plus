@@ -530,7 +530,7 @@ class Parser {
 				}
 			}
 			var castType = parseHardCast(TPClose);
-			mk(ECast(mk(castType.value, p1), castType.type));
+			mk(ECast(castType.value, castType.type));
 		case "while":
 			var econd = parseExpr();
 			var e = parseExpr();
