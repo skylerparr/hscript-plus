@@ -48,6 +48,9 @@ class Interp {
 	#if hscriptPos
 	var curExpr : Expr;
 	#end
+	#if cpp
+	private var mutex: cpp.vm.Mutex = new cpp.vm.Mutex();
+	#end
 
 	public function new() {
 		#if haxe3
@@ -395,6 +398,9 @@ class Interp {
 				else
 					minParams++;
 			var f = function(args:Array<Dynamic>) {
+				#if cpp
+				mutex.acquire();
+				#end
 				if( args.length != params.length ) {
 					if( args.length < minParams ) {
 						var str = "Invalid number of parameters. Got " + args.length + ", required " + minParams;
@@ -416,6 +422,7 @@ class Interp {
 							args2.push(args[pos++]);
 					args = args2;
 				}
+
 				var old = me.locals, depth = me.depth;
 				me.depth++;
 				me.locals = me.duplicate(capturedLocals);
@@ -438,6 +445,9 @@ class Interp {
 					r = me.exprReturn(fexpr);
 				me.locals = old;
 				me.depth = depth;
+				#if cpp
+				mutex.release();
+				#end
 				return r;
 			};
 			var f = Reflect.makeVarArgs(f);
