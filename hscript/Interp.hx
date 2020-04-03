@@ -322,7 +322,7 @@ class Interp {
 			var value = expr(e);
 			declared.push({ n : n, old : locals.get(n) });
 			locals.set(n,{ r : value });
-			variables.set(n, (e == null)?null:expr(e));
+			variables.set(n, (e == null)?null:value);
 			return value;
 		case EParent(e):
 			return expr(e);
@@ -441,8 +441,9 @@ class Interp {
 						throw e;
 						#end
 					}
-				else
+				else {
 					r = me.exprReturn(fexpr);
+				}
 				me.locals = old;
 				me.depth = depth;
 				#if cpp
