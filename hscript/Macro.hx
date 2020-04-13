@@ -248,7 +248,7 @@ class Macro {
           null;
         }
         retVal.expr;
-		}, pos : #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #elseif macro haxe.macro.Context.currentPos() #else p #end }
+		}, pos : #if (hscriptPos && !macro) { file : 'hscript:${e.line}', min : e.pmin, max : e.pmax } #elseif macro haxe.macro.Context.currentPos() #else p #end }
 	}
 
 }
