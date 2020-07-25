@@ -40,11 +40,12 @@ typedef Expr = {
 }
 enum ExprDef {
 #else
+typedef ExprDef = Expr;
 enum Expr {
 #end
 	EConst( c : Const );
 	EIdent( v : String );
-	EVar( n : String, ?t : CType, ?e : Expr, ?access:Array<Access> );
+	EVar( n : String, ?t : CType, ?e : Expr );
 	EParent( e : Expr );
 	EBlock( e : Array<Expr> );
 	EField( e : Expr, f : String );
@@ -56,7 +57,7 @@ enum Expr {
 	EFor( v : String, it : Expr, e : Expr );
 	EBreak;
 	EContinue;
-	EFunction( args : Array<Argument>, e : Expr, ?name : String, ?ret : CType, ?access:Array<Access> );
+	EFunction( args : Array<Argument>, e : Expr, ?name : String, ?ret : CType );
 	EReturn( ?e : Expr );
 	EArray( e : Expr, index : Expr );
 	EArrayDecl( e : Array<Expr> );
@@ -68,14 +69,11 @@ enum Expr {
 	ESwitch( e : Expr, cases : Array<{ values : Array<Expr>, expr : Expr }>, ?defaultExpr : Expr);
 	EDoWhile( cond : Expr, e : Expr);
 	EMeta( name : String, args : Array<Expr>, e : Expr );
-	ECast(e:Expr, t:Null<CType>);
-
-	EClass(name:String, e:Expr, ?baseClass:String);
-	EPackage(path:String);
-	EImport(path:String);
+	ECast(e: Expr, t: Null<CType>);
+	ECheckType( e : Expr, t : CType );
 }
 
-typedef Argument = { name : String, ?t : CType, ?opt : Bool };
+typedef Argument = { name : String, ?t : CType, ?opt : Bool, ?value : Expr };
 
 typedef Metadata = Array<{ name : String, params : Array<Expr> }>;
 
@@ -84,15 +82,8 @@ enum CType {
 	CTFun( args : Array<CType>, ret : CType );
 	CTAnon( fields : Array<{ name : String, t : CType, ?meta : Metadata }> );
 	CTParent( t : CType );
-}
-
-enum Access {
-	APublic;
-	APrivate;
-	AStatic;
-	AOverride;
-	ADynamic;
-	AInline;
+	CTOpt( t : CType );
+	CTNamed( n : String, t : CType );
 }
 
 #if hscriptPos
@@ -121,8 +112,70 @@ enum Error {
 	EUnexpected( s : String );
 	EUnterminatedString;
 	EUnterminatedComment;
+	EInvalidPreprocessor( msg : String );
 	EUnknownVariable( v : String );
 	EInvalidIterator( v : String );
 	EInvalidOp( op : String );
 	EInvalidAccess( f : String );
+	ECustom( msg : String );
+}
+
+
+enum ModuleDecl {
+	DPackage( path : Array<String> );
+	DImport( path : Array<String>, ?everything : Bool );
+	DClass( c : ClassDecl );
+	DTypedef( c : TypeDecl );
+}
+
+typedef ModuleType = {
+	var name : String;
+	var params : {}; // TODO : not yet parsed
+	var meta : Metadata;
+	var isPrivate : Bool;
+}
+
+typedef ClassDecl = {> ModuleType,
+	var extend : Null<CType>;
+	var implement : Array<CType>;
+	var fields : Array<FieldDecl>;
+	var isExtern : Bool;
+}
+
+typedef TypeDecl = {> ModuleType,
+	var t : CType;
+}
+
+typedef FieldDecl = {
+	var name : String;
+	var meta : Metadata;
+	var kind : FieldKind;
+	var access : Array<FieldAccess>;
+}
+
+enum FieldAccess {
+	APublic;
+	APrivate;
+	AInline;
+	AOverride;
+	AStatic;
+	AMacro;
+}
+
+enum FieldKind {
+	KFunction( f : FunctionDecl );
+	KVar( v : VarDecl );
+}
+
+typedef FunctionDecl = {
+	var args : Array<Argument>;
+	var expr : Expr;
+	var ret : Null<CType>;
+}
+
+typedef VarDecl = {
+	var get : Null<String>;
+	var set : Null<String>;
+	var expr : Null<Expr>;
+	var type : Null<CType>;
 }

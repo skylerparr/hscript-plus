@@ -28,7 +28,7 @@ import haxe.macro.Expr;
 
 class Macro {
 
-	var p : Position;
+	var p : Dynamic;
 	#if haxe3
 	var binops : Map<String,Binop>;
 	var unops : Map<String,Unop>;
@@ -77,7 +77,7 @@ class Macro {
 			case OpArrow: "=>";
 			#end
 			#if (haxe_ver >= 4)
-			case OpIn: "...";
+			case OpIn: "in";
 			#end
 			};
 			binops.set(str, op);
@@ -113,6 +113,7 @@ class Macro {
 
 	function convertType( t : Expr.CType ) : ComplexType {
 		return switch( t ) {
+		case CTOpt(t): TOptional(convertType(t));
 		case CTPath(pack, args):
 			var params = [];
 			if( args != null )
@@ -127,6 +128,12 @@ class Macro {
 		case CTParent(t): TParent(convertType(t));
 		case CTFun(args, ret):
 			TFunction(map(args,convertType), convertType(ret));
+		case CTNamed(name, convertType(_) => ct):
+			#if (haxe_ver >= 4)
+				TNamed(name, ct);
+			#else
+				ct;
+			#end
 		case CTAnon(fields):
 			var tf = [];
 			for( f in fields ) {
@@ -185,16 +192,20 @@ class Macro {
 			case EDoWhile(c, e):
 				EWhile(convert(c), convert(e), false);
 			case EFor(v, it, efor):
+				#if macro
+				var p: Position = haxe.macro.Context.currentPos();
+				#else
 				#if (haxe_ver >= 4)
 					var p = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
 					EFor({ expr : EBinop(OpIn,{ expr : EConst(CIdent(v)), pos : p },convert(it)), pos : p }, convert(efor));
 				#elseif (haxe_211 || haxe3)
-					var p = #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
-					#if macro p = haxe.macro.Context.currentPos(); #end
+					var p = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
 					EFor({ expr : EIn({ expr : EConst(CIdent(v)), pos : p },convert(it)), pos : p }, convert(efor));
 				#else
-					EFor(v, convert(it), convert(efor));
 				#end
+				#end
+				EFor({ expr : EBinop(OpIn,{ expr : EConst(CIdent
+				(v)), pos : p },convert(it)), pos : p }, convert(efor));
 			case EBreak:
 				EBreak;
 			case EContinue:
@@ -208,7 +219,7 @@ class Macro {
 						opt : false,
 						value : null,
 					});
-				EFunction(name, {
+				EFunction(#if haxe4 FNamed(name,false) #else name #end, {
 					params : [],
 					args : targs,
 					expr : convert(e),
@@ -237,18 +248,18 @@ class Macro {
 			case ESwitch(e, cases, edef):
 				ESwitch(convert(e), [for( c in cases ) { values : [for( v in c.values ) convert(v)], expr : convert(c.expr) } ], edef == null ? null : convert(edef));
 			case EMeta(m, params, esub):
-				var mpos = #if (hscriptPos && !macro) { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
-				#if macro p = haxe.macro.Context.currentPos(); #end
+				#if macro
+				var mpos: Position = haxe.macro.Context.currentPos();
+				#else
+				var mpos = #if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end;
+				#end
 				EMeta({ name : m, params : params == null ? [] : [for( p in params ) convert(p)], pos : mpos }, convert(esub));
-			case ECast(e, type):
-				ECast(convert(e), convertType(type));
-			default:
-        var retVal = convert(Reflect.field(e, 'e'));
-        if(retVal == null) {
-          null;
-        }
-        retVal.expr;
-		}, pos : #if (hscriptPos && !macro) { file : 'hscript:${e.line}', min : e.pmin, max : e.pmax } #elseif macro haxe.macro.Context.currentPos() #else p #end }
+			case ECheckType(e, t):
+				ECheckType(convert(e), convertType(t));
+			case ECast(e, t):
+				ECast(convert(e), convertType(t));
+		}, pos : #if macro haxe.macro.Context.currentPos() #else
+			#if hscriptPos { file : p.file, min : e.pmin, max : e.pmax } #else p #end #end}
 	}
 
 }

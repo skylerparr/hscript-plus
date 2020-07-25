@@ -26,7 +26,7 @@ import hscript.Expr;
 private enum Stop {
 	SBreak;
 	SContinue;
-	SReturn( v : Dynamic );
+	SReturn;
 }
 
 class Interp {
@@ -44,28 +44,39 @@ class Interp {
 	var depth : Int;
 	var inTry : Bool;
 	var declared : Array<{ n : String, old : { r : Dynamic } }>;
+	var returnValue : Dynamic;
 
 	#if hscriptPos
 	var curExpr : Expr;
 	#end
-	#if cpp
-	private var mutex: cpp.vm.Mutex = new cpp.vm.Mutex();
-	#end
 
 	public function new() {
 		#if haxe3
-		variables = new Map<String,Dynamic>();
 		locals = new Map();
 		#else
-		variables = new Hash();
 		locals = new Hash();
 		#end
 		declared = new Array();
+		resetVariables();
+		initOps();
+	}
+
+	private function resetVariables(){
+		#if haxe3
+		variables = new Map<String,Dynamic>();
+		#else
+		variables = new Hash();
+		#end
+		
 		variables.set("null",null);
 		variables.set("true",true);
 		variables.set("false",false);
-		variables.set("trace",function(e) haxe.Log.trace(Std.string(e), posInfos()));
-		initOps();
+		variables.set("trace", Reflect.makeVarArgs(function(el) {
+			var inf = posInfos();
+			var v = el.shift();
+			if( el.length > 0 ) inf.customParams = el;
+			haxe.Log.trace(Std.string(v), inf);
+		}));
 	}
 
 	public function posInfos(): PosInfos {
@@ -119,7 +130,7 @@ class Interp {
 
 	function assign( e1 : Expr, e2 : Expr ) : Dynamic {
 		var v = expr(e2);
-		switch( edef(e1) ) {
+		switch( Tools.expr(e1) ) {
 		case EIdent(id):
 			var l = locals.get(id);
 			if( l == null )
@@ -151,7 +162,7 @@ class Interp {
 
 	function evalAssignOp(op,fop,e1,e2) : Dynamic {
 		var v;
-		switch( edef(e1) ) {
+		switch( Tools.expr(e1) ) {
 		case EIdent(id):
 			var l = locals.get(id);
 			v = fop(expr(e1),expr(e2));
@@ -250,7 +261,10 @@ class Interp {
 			switch( e ) {
 			case SBreak: throw "Invalid break";
 			case SContinue: throw "Invalid continue";
-			case SReturn(v): return v;
+			case SReturn:
+				var v = returnValue;
+				returnValue = null;
+				return v;
 			}
 		}
 		return null;
@@ -274,21 +288,18 @@ class Interp {
 		}
 	}
 
-	inline function edef( e : Expr ) {
-		#if hscriptPos
-		return e.e;
-		#else
-		return e;
-		#end
+	inline function error(e : #if hscriptPos ErrorDef #else Error #end, rethrow=false ) : Dynamic {
+		#if hscriptPos var e = new Error(e, curExpr.pmin, curExpr.pmax, curExpr.origin, curExpr.line); #end
+		if( rethrow ) this.rethrow(e) else throw e;
+		return null;
 	}
 
-	inline function error(e : #if hscriptPos ErrorDef #else Error #end ) : Dynamic {
-		#if hscriptPos
-		throw new Error(e, curExpr.pmin, curExpr.pmax, curExpr.origin, curExpr.line);
+	inline function rethrow( e : Dynamic ) {
+		#if hl
+		hl.Api.rethrow(e);
 		#else
 		throw e;
 		#end
-		return null;
 	}
 
 	function resolve( id : String ) : Dynamic {
@@ -319,11 +330,9 @@ class Interp {
 		case EIdent(id):
 			return resolve(id);
 		case EVar(n,_,e):
-			var value = expr(e);
 			declared.push({ n : n, old : locals.get(n) });
-			locals.set(n,{ r : value });
-			variables.set(n, (e == null)?null:value);
-			return value;
+			locals.set(n,{ r : (e == null)?null:expr(e) });
+			return null;
 		case EParent(e):
 			return expr(e);
 		case EBlock(exprs):
@@ -356,14 +365,14 @@ class Interp {
 				return ~expr(e);
 				#end
 			default:
-				return error(EInvalidOp(op));
+				error(EInvalidOp(op));
 			}
 		case ECall(e,params):
 			var args = new Array();
 			for( p in params )
 				args.push(expr(p));
 
-			switch( edef(e) ) {
+			switch( Tools.expr(e) ) {
 			case EField(e,f):
 				var obj = expr(e);
 				if( obj == null ) error(EInvalidAccess(f));
@@ -387,7 +396,8 @@ class Interp {
 		case EContinue:
 			throw SContinue;
 		case EReturn(e):
-			throw SReturn((e == null)?null:expr(e));
+			returnValue = e == null ? null : expr(e);
+			throw SReturn;
 		case EFunction(params,fexpr,name,_):
 			var capturedLocals = duplicate(locals);
 			var me = this;
@@ -398,14 +408,11 @@ class Interp {
 				else
 					minParams++;
 			var f = function(args:Array<Dynamic>) {
-				#if cpp
-				mutex.acquire();
-				#end
-				if( args.length != params.length ) {
+				if( ( (args == null) ? 0 : args.length ) != params.length ) {
 					if( args.length < minParams ) {
 						var str = "Invalid number of parameters. Got " + args.length + ", required " + minParams;
 						if( name != null ) str += " for function '" + name+"'";
-						throw str;
+						error(ECustom(str));
 					}
 					// make sure mandatory args are forced
 					var args2 = [];
@@ -422,7 +429,6 @@ class Interp {
 							args2.push(args[pos++]);
 					args = args2;
 				}
-
 				var old = me.locals, depth = me.depth;
 				me.depth++;
 				me.locals = me.duplicate(capturedLocals);
@@ -441,14 +447,10 @@ class Interp {
 						throw e;
 						#end
 					}
-				else {
+				else
 					r = me.exprReturn(fexpr);
-				}
 				me.locals = old;
 				me.depth = depth;
-				#if cpp
-				mutex.release();
-				#end
 				return r;
 			};
 			var f = Reflect.makeVarArgs(f);
@@ -466,7 +468,7 @@ class Interp {
 			}
 			return f;
 		case EArrayDecl(arr):
-			if (arr.length > 0 && edef(arr[0]).match(EBinop("=>", _))) {
+			if (arr.length > 0 && Tools.expr(arr[0]).match(EBinop("=>", _))) {
 				var isAllString:Bool = true;
 				var isAllInt:Bool = true;
 				var isAllObject:Bool = true;
@@ -474,7 +476,7 @@ class Interp {
 				var keys:Array<Dynamic> = [];
 				var values:Array<Dynamic> = [];
 				for (e in arr) {
-					switch(edef(e)) {
+					switch(Tools.expr(e)) {
 						case EBinop("=>", eKey, eValue): {
 							var key:Dynamic = expr(eKey);
 							var value:Dynamic = expr(eValue);
@@ -572,9 +574,12 @@ class Interp {
 			return val;
 		case EMeta(_, _, e):
 			return expr(e);
-
-			default: return null;
+		case ECast(e, _):
+			return expr(e);
+		case ECheckType(e,_):
+			return expr(e);
 		}
+		return null;
 	}
 
 	function doWhileLoop(econd,e) {
@@ -586,7 +591,7 @@ class Interp {
 				switch(err) {
 				case SContinue:
 				case SBreak: break;
-				case SReturn(_): throw err;
+				case SReturn: throw err;
 				}
 			}
 		}
@@ -603,7 +608,7 @@ class Interp {
 				switch(err) {
 				case SContinue:
 				case SBreak: break;
-				case SReturn(_): throw err;
+				case SReturn: throw err;
 				}
 			}
 		}
@@ -611,7 +616,7 @@ class Interp {
 	}
 
 	function makeIterator( v : Dynamic ) : Iterator<Dynamic> {
-		#if ((flash && !flash9) || php)
+		#if ((flash && !flash9) || (php && !php7 && haxe_ver < '4.0.0'))
 		if ( v.iterator != null ) v = v.iterator();
 		#else
 		try v = v.iterator() catch( e : Dynamic ) {};
@@ -632,7 +637,7 @@ class Interp {
 				switch( err ) {
 				case SContinue:
 				case SBreak: break;
-				case SReturn(_): throw err;
+				case SReturn: throw err;
 				}
 			}
 		}

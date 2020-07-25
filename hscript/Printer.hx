@@ -37,10 +37,20 @@ class Printer {
 		return buf.toString();
 	}
 
+	public function typeToString( t : CType ) {
+		buf = new StringBuf();
+		tabs = "";
+		type(t);
+		return buf.toString();
+	}
+
 	inline function add<T>(s:T) buf.add(s);
 
 	function type( t : CType ) {
 		switch( t ) {
+		case CTOpt(t):
+			add('?');
+			type(t);
 		case CTPath(path, params):
 			add(path.join("."));
 			if( params != null ) {
@@ -52,6 +62,19 @@ class Printer {
 				}
 				add(">");
 			}
+		case CTNamed(name, t):
+			add(name);
+			add(':');
+			type(t);
+		case CTFun(args, ret) if (Lambda.exists(args, function (a) return a.match(CTNamed(_, _)))):
+			add('(');
+			for (a in args)
+				switch a {
+					case CTNamed(_, _): type(a);
+					default: type(CTNamed('_', a));
+				}
+			add(')->');
+			type(ret);
 		case CTFun(args, ret):
 			if( args.length == 0 )
 				add("Void -> ");
@@ -80,7 +103,7 @@ class Printer {
 
 	function addType( t : CType ) {
 		if( t != null ) {
-			add(":");
+			add(" : ");
 			type(t);
 		}
 	}
@@ -119,8 +142,8 @@ class Printer {
 					expr(e);
 					add(";\n");
 				}
-				add("}");
 				tabs = tabs.substr(1);
+				add("}");
 			}
 		case EField(e, f):
 			expr(e);
@@ -245,7 +268,7 @@ class Printer {
 				add("{\n");
 				for( f in fl ) {
 					add(tabs);
-					add(f.name+":");
+					add(f.name+" : ");
 					expr(f.e);
 					add(",\n");
 				}
@@ -293,21 +316,15 @@ class Printer {
 			}
 			add(" ");
 			expr(e);
-		case ECast(e, type):
-			add("cast($e, $type)");
-		case EPackage(path):
-			add("package $path;");
-		case EImport(path):
-			add("import $path;");
-		case EClass(name, e, baseClass):
-			add('class $name');
-			if (baseClass != null)
-				add(' extends $baseClass');
-			add(' {\n');
-			tabs += "\t";
+	   case ECast(e, type):
+		    add("cast($e, $type)");
+
+	   case ECheckType(e, t):
+			add("(");
 			expr(e);
-			tabs = tabs.substr(1);
-			add("}");
+			add(" : ");
+			addType(t);
+			add(")");
 		}
 	}
 
@@ -317,14 +334,16 @@ class Printer {
 
 	public static function errorToString( e : Expr.Error ) {
 		var message = switch( #if hscriptPos e.e #else e #end ) {
-			case EInvalidChar(c): "Invalid character: '"+String.fromCharCode(c)+"' ("+c+")";
+			case EInvalidChar(c): "Invalid character: '"+(StringTools.isEof(c) ? "EOF" : String.fromCharCode(c))+"' ("+c+")";
 			case EUnexpected(s): "Unexpected token: \""+s+"\"";
 			case EUnterminatedString: "Unterminated string";
 			case EUnterminatedComment: "Unterminated comment";
+			case EInvalidPreprocessor(str): "Invalid preprocessor (" + str + ")";
 			case EUnknownVariable(v): "Unknown variable: "+v;
 			case EInvalidIterator(v): "Invalid iterator: "+v;
 			case EInvalidOp(op): "Invalid operator: "+op;
-			case EInvalidAccess(f): "Invalid access to field "+f;
+			case EInvalidAccess(f): "Invalid access to field " + f;
+			case ECustom(msg): msg;
 		};
 		#if hscriptPos
 		return e.origin + ":" + e.line + ": " + message;

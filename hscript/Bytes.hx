@@ -72,10 +72,7 @@ class Bytes {
 	}
 
 	function doEncodeInt(v: Int) {
-		bout.addByte(v & 0xFF);
-		bout.addByte((v >> 8) & 0xFF);
-		bout.addByte((v >> 16) & 0xFF);
-		bout.addByte(v >>> 24);
+		bout.addInt32(v);
 	}
 
 	function doEncodeConst( c : Const ) {
@@ -107,7 +104,7 @@ class Bytes {
 	}
 
 	function doDecodeInt() {
-		var i = bin.get(pin) | (bin.get(pin+1) << 8) | (bin.get(pin+2) << 16) | (bin.get(pin+3) << 24);
+		var i = bin.getInt32(pin);
 		pin += 4;
 		return i;
 	}
@@ -143,7 +140,6 @@ class Bytes {
 		#end
 		bout.addByte(Type.enumIndex(e));
 		switch( e ) {
-		case EClass(_, _), EImport(_), EPackage(_):
 		case EConst(c):
 			doEncodeConst(c);
 		case EIdent(v):
@@ -250,11 +246,17 @@ class Bytes {
 			bout.addByte(args == null ? 0 : args.length + 1);
 			if( args != null ) for( e in args ) doEncode(e);
 			doEncode(e);
+		case ECheckType(e,_):
+			doEncode(e);
 		}
 	}
 
 	function doDecode() : Expr {
 	#if hscriptPos
+		if (bin.get(pin) == 255) {
+			pin++;
+			return null;
+		}
 		var origin = doDecodeString();
 		var line = doDecodeInt();
 		return { e : _doDecode(), pmin : 0, pmax : 0, origin : origin, line : line };
@@ -374,6 +376,8 @@ class Bytes {
 			var count = bin.get(pin++);
 			var args = count == 0 ? null : [for( i in 0...count - 1 ) doDecode()];
 			EMeta(name, args, doDecode());
+		case 26:
+			ECheckType(doDecode(), CTPath(["Void"]));
 		case 255:
 			null;
 		default:
