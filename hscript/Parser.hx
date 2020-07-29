@@ -673,6 +673,8 @@ class Parser {
 		case "new":
 			var a = new Array();
 			a.push(getIdent());
+			var next = true;
+			var isTOp: Bool = false;	
 			while( true ) {
 				var tk = token();
 				switch( tk ) {
@@ -680,6 +682,18 @@ class Parser {
 					a.push(getIdent());
 				case TPOpen:
 					break;
+				case TOp("<"):
+					next = true;
+					isTOp = true;
+					parseType();
+				case TComma:
+					if(!isTOp) {
+						unexpected(tk);
+					}
+					next = true;
+					parseType();
+				case TOp(">"):
+					isTOp = false;
 				default:
 					unexpected(tk);
 					break;
