@@ -352,7 +352,6 @@ class Parser {
 	}
 
 	function parseExpr() {
-		trace("token");
 		var tk = token();
 		#if hscriptPos
 		var p1 = tokenMin;
@@ -1049,7 +1048,6 @@ class Parser {
 			return args;
 		push(tk);
 		while( true ) {
-			trace("parseExpr");
 			var expr = parseExpr();
 			args.push(expr);
 			tk = token();
